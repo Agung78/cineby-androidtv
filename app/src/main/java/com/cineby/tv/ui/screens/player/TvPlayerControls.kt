@@ -63,10 +63,10 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.cineby.tv.R
-import com.cineby.tv.ui.theme.NetflixDarkCard
-import com.cineby.tv.ui.theme.NetflixLightGray
-import com.cineby.tv.ui.theme.NetflixRed
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.theme.TvSurface
+import com.cineby.tv.ui.theme.TvMuted
+import com.cineby.tv.ui.theme.TvBrand
+import com.cineby.tv.ui.theme.TvOnSurface
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -161,7 +161,7 @@ fun TvPlayerControls(
             ) {
                 Text(
                     text = title,
-                    color = NetflixWhite,
+                    color = TvOnSurface,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -180,15 +180,15 @@ fun TvPlayerControls(
                         onUserInteraction?.invoke()
                     },
                     colors = ButtonDefaults.colors(
-                        containerColor = NetflixDarkCard.copy(alpha = 0.85f),
-                        focusedContainerColor = NetflixRed,
-                        contentColor = NetflixWhite,
-                        focusedContentColor = NetflixWhite
+                        containerColor = TvSurface.copy(alpha = 0.85f),
+                        focusedContainerColor = TvBrand,
+                        contentColor = TvOnSurface,
+                        focusedContentColor = TvOnSurface
                     ),
                     shape = ButtonDefaults.shape(shape = CircleShape),
                     scale = ButtonDefaults.scale(focusedScale = 1.12f),
                     border = ButtonDefaults.border(
-                        focusedBorder = Border(BorderStroke(2.dp, NetflixWhite))
+                        focusedBorder = Border(BorderStroke(2.dp, TvOnSurface))
                     ),
                     contentPadding = PaddingValues(0.dp),
                     modifier = Modifier
@@ -214,15 +214,15 @@ fun TvPlayerControls(
                         onUserInteraction?.invoke()
                     },
                     colors = ButtonDefaults.colors(
-                        containerColor = NetflixWhite,
+                        containerColor = TvOnSurface,
                         contentColor = Color.Black,
-                        focusedContainerColor = NetflixRed,
-                        focusedContentColor = NetflixWhite
+                        focusedContainerColor = TvBrand,
+                        focusedContentColor = TvOnSurface
                     ),
                     shape = ButtonDefaults.shape(shape = CircleShape),
                     scale = ButtonDefaults.scale(focusedScale = 1.12f),
                     border = ButtonDefaults.border(
-                        focusedBorder = Border(BorderStroke(2.dp, NetflixWhite))
+                        focusedBorder = Border(BorderStroke(2.dp, TvOnSurface))
                     ),
                     contentPadding = PaddingValues(0.dp),
                     modifier = playButtonModifier
@@ -251,15 +251,15 @@ fun TvPlayerControls(
                         onUserInteraction?.invoke()
                     },
                     colors = ButtonDefaults.colors(
-                        containerColor = NetflixDarkCard.copy(alpha = 0.85f),
-                        focusedContainerColor = NetflixRed,
-                        contentColor = NetflixWhite,
-                        focusedContentColor = NetflixWhite
+                        containerColor = TvSurface.copy(alpha = 0.85f),
+                        focusedContainerColor = TvBrand,
+                        contentColor = TvOnSurface,
+                        focusedContentColor = TvOnSurface
                     ),
                     shape = ButtonDefaults.shape(shape = CircleShape),
                     scale = ButtonDefaults.scale(focusedScale = 1.12f),
                     border = ButtonDefaults.border(
-                        focusedBorder = Border(BorderStroke(2.dp, NetflixWhite))
+                        focusedBorder = Border(BorderStroke(2.dp, TvOnSurface))
                     ),
                     contentPadding = PaddingValues(0.dp),
                     modifier = Modifier
@@ -389,15 +389,15 @@ fun TvPlayerControls(
                                     modifier = Modifier
                                         .offset(x = tooltipOffset)
                                         .width(tooltipWidth)
-                                        .background(NetflixDarkCard.copy(alpha = 0.95f), RoundedCornerShape(8.dp))
-                                        .border(BorderStroke(1.5.dp, NetflixRed), RoundedCornerShape(8.dp))
+                                        .background(TvSurface.copy(alpha = 0.95f), RoundedCornerShape(8.dp))
+                                        .border(BorderStroke(1.5.dp, TvBrand), RoundedCornerShape(8.dp))
                                         .padding(horizontal = 10.dp, vertical = 5.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (justCommittedTarget != null) {
                                         Text(
                                             text = stringResource(R.string.jumping_to, justCommittedTarget!!),
-                                            color = NetflixRed,
+                                            color = TvBrand,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -411,13 +411,13 @@ fun TvPlayerControls(
                                             }
                                             Text(
                                                 text = "${formatTime(scrubPosMs)}$deltaStr",
-                                                color = NetflixWhite,
+                                                color = TvOnSurface,
                                                 fontSize = 13.sp,
                                                 fontWeight = FontWeight.Bold
                                             )
                                             Text(
                                                 text = stringResource(R.string.press_ok_to_play),
-                                                color = NetflixLightGray,
+                                                color = TvMuted,
                                                 fontSize = 10.sp
                                             )
                                         }
@@ -451,7 +451,7 @@ fun TvPlayerControls(
                                 modifier = Modifier
                                     .fillMaxWidth(progress)
                                     .height(animatedBarHeight)
-                                    .background(NetflixRed, RoundedCornerShape(animatedBarHeight / 2))
+                                    .background(TvBrand, RoundedCornerShape(animatedBarHeight / 2))
                             )
 
                             // Draggable / Focusable Thumb Dot
@@ -460,8 +460,8 @@ fun TvPlayerControls(
                                     modifier = Modifier
                                         .offset(x = thumbOffset)
                                         .size(thumbSize)
-                                        .background(NetflixWhite, CircleShape)
-                                        .border(BorderStroke(3.dp, NetflixRed), CircleShape)
+                                        .background(TvOnSurface, CircleShape)
+                                        .border(BorderStroke(3.dp, TvBrand), CircleShape)
                                 )
                             }
                         }
@@ -482,7 +482,7 @@ fun TvPlayerControls(
                     ) {
                         Text(
                             text = "${formatTime(targetPos)} / ${formatTime(durationMs)}",
-                            color = if (isSeekFocused) NetflixWhite else NetflixLightGray,
+                            color = if (isSeekFocused) TvOnSurface else TvMuted,
                             fontSize = 13.sp,
                             fontWeight = if (isSeekFocused) FontWeight.Bold else FontWeight.Medium
                         )
@@ -490,12 +490,12 @@ fun TvPlayerControls(
                         if (isSeekFocused) {
                             Box(
                                 modifier = Modifier
-                                    .background(NetflixRed, RoundedCornerShape(4.dp))
+                                    .background(TvBrand, RoundedCornerShape(4.dp))
                                     .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
                                 Text(
                                     text = stringResource(R.string.seek_mode),
-                                    color = NetflixWhite,
+                                    color = TvOnSurface,
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -510,15 +510,15 @@ fun TvPlayerControls(
                             onUserInteraction?.invoke()
                         },
                         colors = ButtonDefaults.colors(
-                            containerColor = if (isSubtitleEnabled) NetflixRed else NetflixDarkCard,
-                            contentColor = NetflixWhite,
-                            focusedContainerColor = if (isSubtitleEnabled) Color(0xFFB81D24) else NetflixWhite,
-                            focusedContentColor = if (isSubtitleEnabled) NetflixWhite else Color.Black
+                            containerColor = if (isSubtitleEnabled) TvBrand else TvSurface,
+                            contentColor = TvOnSurface,
+                            focusedContainerColor = if (isSubtitleEnabled) Color(0xFFB81D24) else TvOnSurface,
+                            focusedContentColor = if (isSubtitleEnabled) TvOnSurface else Color.Black
                         ),
                         shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)),
                         scale = ButtonDefaults.scale(focusedScale = 1.08f),
                         border = ButtonDefaults.border(
-                            focusedBorder = Border(BorderStroke(2.dp, NetflixWhite))
+                            focusedBorder = Border(BorderStroke(2.dp, TvOnSurface))
                         ),
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
                         modifier = Modifier

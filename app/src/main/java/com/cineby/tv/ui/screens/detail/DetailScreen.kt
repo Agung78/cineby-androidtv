@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import androidx.tv.foundation.lazy.list.TvLazyColumn
+import androidx.tv.foundation.PivotOffsets
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.Border
@@ -54,13 +55,18 @@ import coil.compose.AsyncImage
 import com.cineby.tv.R
 import com.cineby.tv.data.model.CastMember
 import com.cineby.tv.data.model.EpisodeItem
-import com.cineby.tv.ui.components.TvLoadingSpinner
-import com.cineby.tv.ui.theme.NetflixBlack
-import com.cineby.tv.ui.theme.NetflixDarkCard
-import com.cineby.tv.ui.theme.NetflixGold
-import com.cineby.tv.ui.theme.NetflixLightGray
-import com.cineby.tv.ui.theme.NetflixRed
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.components.TvErrorRetry
+import com.cineby.tv.ui.components.TvHeroSkeleton
+import com.cineby.tv.ui.components.tvCardBorder
+import com.cineby.tv.ui.components.tvCardGlow
+import com.cineby.tv.ui.components.tvCardScale
+import com.cineby.tv.ui.components.tvCardShape
+import com.cineby.tv.ui.theme.TvBackground
+import com.cineby.tv.ui.theme.TvSurface
+import com.cineby.tv.ui.theme.TvGold
+import com.cineby.tv.ui.theme.TvMuted
+import com.cineby.tv.ui.theme.TvBrand
+import com.cineby.tv.ui.theme.TvOnSurface
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -91,17 +97,14 @@ fun DetailScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(NetflixBlack)
+            .background(TvBackground)
     ) {
         if (uiState.isLoading) {
-            TvLoadingSpinner(
-                modifier = Modifier.align(Alignment.Center)
-            )
+            TvHeroSkeleton()
         } else if (uiState.error != null) {
-            Text(
-                text = uiState.error ?: "",
-                color = NetflixWhite,
-                modifier = Modifier.align(Alignment.Center)
+            TvErrorRetry(
+                message = uiState.error ?: "",
+                onRetry = { viewModel.loadDetail(contentType, slug) }
             )
         } else {
             val title = uiState.movie?.title ?: uiState.series?.title ?: ""
@@ -120,7 +123,7 @@ fun DetailScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(380.dp)
+                            .height(420.dp)
                     ) {
                         AsyncImage(
                             model = backdropUrl,
@@ -137,8 +140,8 @@ fun DetailScreen(
                                     Brush.verticalGradient(
                                         colors = listOf(
                                             Color.Transparent,
-                                            NetflixBlack.copy(alpha = 0.6f),
-                                            NetflixBlack
+                                            TvBackground.copy(alpha = 0.6f),
+                                            TvBackground
                                         ),
                                         startY = 120f
                                     )
@@ -148,13 +151,13 @@ fun DetailScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(horizontal = 28.dp, vertical = 20.dp),
+                                .padding(horizontal = 48.dp, vertical = 20.dp),
                             verticalArrangement = Arrangement.Bottom
                         ) {
                             Text(
                                 text = title,
-                                color = NetflixWhite,
-                                fontSize = 32.sp,
+                                color = TvOnSurface,
+                                fontSize = 38.sp,
                                 fontWeight = FontWeight.Black
                             )
 
@@ -169,13 +172,13 @@ fun DetailScreen(
                                         Icon(
                                             imageVector = Icons.Default.Star,
                                             contentDescription = null,
-                                            tint = NetflixGold,
+                                            tint = TvGold,
                                             modifier = Modifier.size(14.dp)
                                         )
                                         Spacer(modifier = Modifier.width(3.dp))
                                         Text(
                                             text = "$rating / 10",
-                                            color = NetflixWhite,
+                                            color = TvOnSurface,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -183,11 +186,11 @@ fun DetailScreen(
                                 }
 
                                 if (year.isNotBlank()) {
-                                    Text(text = year, color = NetflixLightGray, fontSize = 12.sp)
+                                    Text(text = year, color = TvMuted, fontSize = 12.sp)
                                 }
 
                                 if (genres.isNotBlank()) {
-                                    Text(text = genres, color = NetflixLightGray, fontSize = 12.sp)
+                                    Text(text = genres, color = TvMuted, fontSize = 12.sp)
                                 }
                             }
 
@@ -195,9 +198,9 @@ fun DetailScreen(
 
                             Text(
                                 text = overview,
-                                color = NetflixLightGray,
-                                fontSize = 13.sp,
-                                maxLines = 4,
+                                color = TvMuted,
+                                fontSize = 15.sp,
+                                maxLines = 3,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.width(600.dp)
                             )
@@ -229,15 +232,15 @@ fun DetailScreen(
                                     }
                                 },
                                 colors = ButtonDefaults.colors(
-                                    containerColor = NetflixRed,
-                                    contentColor = NetflixWhite,
-                                    focusedContainerColor = NetflixRed,
-                                    focusedContentColor = NetflixWhite
+                                    containerColor = TvBrand,
+                                    contentColor = TvOnSurface,
+                                    focusedContainerColor = TvBrand,
+                                    focusedContentColor = TvOnSurface
                                 ),
                                 scale = ButtonDefaults.scale(focusedScale = 1.08f),
                                 border = ButtonDefaults.border(
                                     focusedBorder = Border(
-                                        border = BorderStroke(2.dp, NetflixWhite)
+                                        border = BorderStroke(2.dp, TvOnSurface)
                                     )
                                 ),
                                 shape = ButtonDefaults.shape(shape = RoundedCornerShape(6.dp)),
@@ -264,10 +267,10 @@ fun DetailScreen(
                 // If Series: Season selector & Episode list
                 if (contentType == "tv_series" && uiState.series != null) {
                     item {
-                        Column(modifier = Modifier.padding(horizontal = 28.dp, vertical = 12.dp)) {
+                        Column(modifier = Modifier.padding(horizontal = 48.dp, vertical = 14.dp)) {
                             Text(
                                 text = stringResource(R.string.select_season_episode),
-                                color = NetflixWhite,
+                                color = TvOnSurface,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -276,15 +279,16 @@ fun DetailScreen(
 
                             // Seasons Row
                             TvLazyRow(
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                pivotOffsets = PivotOffsets(parentFraction = 0.15f, childFraction = 0f)
                             ) {
                                 items(uiState.series?.seasons ?: emptyList()) { season ->
                                     val isSelected = season.id == uiState.selectedSeason?.id
                                     Button(
                                         onClick = { viewModel.selectSeason(slug, season) },
                                         colors = ButtonDefaults.colors(
-                                            containerColor = if (isSelected) NetflixRed else NetflixDarkCard,
-                                            contentColor = NetflixWhite
+                                            containerColor = if (isSelected) TvBrand else TvSurface,
+                                            contentColor = TvOnSurface
                                         ),
                                         shape = ButtonDefaults.shape(shape = RoundedCornerShape(6.dp))
                                     ) {
@@ -297,7 +301,8 @@ fun DetailScreen(
 
                             // Episodes List
                             TvLazyRow(
-                                horizontalArrangement = Arrangement.spacedBy(14.dp)
+                                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                                pivotOffsets = PivotOffsets(parentFraction = 0.15f, childFraction = 0f)
                             ) {
                                 items(uiState.episodes, key = { it.id }) { ep ->
                                     TvEpisodeCard(
@@ -324,17 +329,18 @@ fun DetailScreen(
                 // Cast list
                 if (castList.isNotEmpty()) {
                     item {
-                        Column(modifier = Modifier.padding(start = 28.dp, top = 16.dp, bottom = 32.dp)) {
+                        Column(modifier = Modifier.padding(start = 48.dp, top = 16.dp, bottom = 32.dp)) {
                             Text(
                                 text = stringResource(R.string.cast),
-                                color = NetflixWhite,
-                                fontSize = 16.sp,
+                                color = TvOnSurface,
+                                fontSize = 19.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(bottom = 10.dp)
                             )
 
                             TvLazyRow(
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                pivotOffsets = PivotOffsets(parentFraction = 0.15f, childFraction = 0f)
                             ) {
                                 items(castList.take(12), key = { it.id }) { cast ->
                                     TvCastCard(cast = cast)
@@ -359,16 +365,13 @@ fun TvEpisodeCard(
         modifier = Modifier
             .width(220.dp)
             .height(180.dp),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(8.dp)),
+        shape = tvCardShape(),
         colors = CardDefaults.colors(
-            containerColor = NetflixDarkCard
+            containerColor = TvSurface
         ),
-        scale = CardDefaults.scale(focusedScale = 1.05f),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, NetflixWhite)
-            )
-        )
+        scale = tvCardScale(),
+        glow = tvCardGlow(),
+        border = tvCardBorder()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(
@@ -392,7 +395,7 @@ fun TvEpisodeCard(
                 ) {
                     Text(
                         text = stringResource(R.string.episode_badge, episode.episodeNumber),
-                        color = NetflixWhite,
+                        color = TvOnSurface,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -402,7 +405,7 @@ fun TvEpisodeCard(
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
                     text = "${episode.episodeNumber}. ${episode.name}",
-                    color = NetflixWhite,
+                    color = TvOnSurface,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -411,7 +414,7 @@ fun TvEpisodeCard(
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = episode.overview ?: "",
-                    color = NetflixLightGray,
+                    color = TvMuted,
                     fontSize = 9.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -429,17 +432,14 @@ fun TvCastCard(cast: CastMember) {
         modifier = Modifier
             .width(105.dp)
             .padding(vertical = 4.dp),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(8.dp)),
+        shape = tvCardShape(),
         colors = CardDefaults.colors(
             containerColor = Color.Transparent,
-            focusedContainerColor = NetflixDarkCard
+            focusedContainerColor = TvSurface
         ),
-        scale = CardDefaults.scale(focusedScale = 1.08f),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, NetflixWhite)
-            )
-        )
+        scale = tvCardScale(),
+        glow = tvCardGlow(),
+        border = tvCardBorder()
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -454,20 +454,20 @@ fun TvCastCard(cast: CastMember) {
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape)
-                    .background(NetflixDarkCard)
+                    .background(TvSurface)
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = cast.name,
-                color = NetflixWhite,
-                fontSize = 11.sp,
+                color = TvOnSurface,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = cast.character ?: "",
-                color = NetflixLightGray,
+                color = TvMuted,
                 fontSize = 9.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

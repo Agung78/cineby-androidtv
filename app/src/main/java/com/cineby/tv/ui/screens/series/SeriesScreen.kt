@@ -18,8 +18,8 @@ import com.cineby.tv.R
 import com.cineby.tv.ui.components.TvHeroBillboard
 import com.cineby.tv.ui.components.TvLoadingSpinner
 import com.cineby.tv.ui.components.TvSwimlaneRow
-import com.cineby.tv.ui.theme.NetflixBlack
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.theme.TvBackground
+import com.cineby.tv.ui.theme.TvOnSurface
 
 @Composable
 fun SeriesScreen(
@@ -33,7 +33,7 @@ fun SeriesScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(NetflixBlack)
+            .background(TvBackground)
     ) {
         if (uiState.isLoading) {
             TvLoadingSpinner(
@@ -42,7 +42,7 @@ fun SeriesScreen(
         } else if (uiState.error != null) {
             Text(
                 text = uiState.error ?: "",
-                color = NetflixWhite,
+                color = TvOnSurface,
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(24.dp)

@@ -7,18 +7,18 @@ import androidx.tv.material3.darkColorScheme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 private val DarkColorScheme = darkColorScheme(
-    primary = NetflixRed,
-    onPrimary = NetflixWhite,
-    primaryContainer = NetflixRedDark,
-    onPrimaryContainer = NetflixWhite,
-    secondary = NetflixDarkGray,
-    onSecondary = NetflixWhite,
-    background = NetflixBlack,
-    onBackground = NetflixWhite,
-    surface = NetflixDarkCard,
-    onSurface = NetflixWhite,
-    surfaceVariant = NetflixDarkGray,
-    onSurfaceVariant = NetflixLightGray
+    primary = TvBrand,
+    onPrimary = TvOnSurface,
+    primaryContainer = TvBrandDark,
+    onPrimaryContainer = TvOnSurface,
+    secondary = TvSurfaceVariant,
+    onSecondary = TvOnSurface,
+    background = TvBackground,
+    onBackground = TvOnSurface,
+    surface = TvSurface,
+    onSurface = TvOnSurface,
+    surfaceVariant = TvSurfaceVariant,
+    onSurfaceVariant = TvMuted
 )
 
 @OptIn(ExperimentalTvMaterial3Api::class)

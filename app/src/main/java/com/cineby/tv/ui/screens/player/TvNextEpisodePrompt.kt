@@ -43,10 +43,10 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.cineby.tv.R
-import com.cineby.tv.ui.theme.NetflixDarkCard
-import com.cineby.tv.ui.theme.NetflixLightGray
-import com.cineby.tv.ui.theme.NetflixRed
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.theme.TvSurface
+import com.cineby.tv.ui.theme.TvMuted
+import com.cineby.tv.ui.theme.TvBrand
+import com.cineby.tv.ui.theme.TvOnSurface
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -79,8 +79,8 @@ fun TvNextEpisodePrompt(
         Box(
             modifier = Modifier
                 .width(360.dp)
-                .background(NetflixDarkCard.copy(alpha = 0.96f), RoundedCornerShape(12.dp))
-                .border(BorderStroke(2.dp, NetflixRed), RoundedCornerShape(12.dp))
+                .background(TvSurface.copy(alpha = 0.96f), RoundedCornerShape(12.dp))
+                .border(BorderStroke(2.dp, TvBrand), RoundedCornerShape(12.dp))
                 .padding(16.dp)
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -92,12 +92,12 @@ fun TvNextEpisodePrompt(
                 ) {
                     Box(
                         modifier = Modifier
-                            .background(NetflixRed, RoundedCornerShape(4.dp))
+                            .background(TvBrand, RoundedCornerShape(4.dp))
                             .padding(horizontal = 7.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = stringResource(R.string.next_episode).uppercase(),
-                            color = NetflixWhite,
+                            color = TvOnSurface,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -106,7 +106,7 @@ fun TvNextEpisodePrompt(
                     if (remainingSeconds > 0) {
                         Text(
                             text = stringResource(R.string.next_episode_in_seconds, remainingSeconds),
-                            color = NetflixLightGray,
+                            color = TvMuted,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -118,7 +118,7 @@ fun TvNextEpisodePrompt(
                 // Series & Episode Details
                 Text(
                     text = "S${nextEpisode.seasonNumber}:E${nextEpisode.episode.episodeNumber} - ${nextEpisode.episode.name}",
-                    color = NetflixWhite,
+                    color = TvOnSurface,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
@@ -129,7 +129,7 @@ fun TvNextEpisodePrompt(
                     Spacer(modifier = Modifier.height(3.dp))
                     Text(
                         text = nextEpisode.seriesTitle,
-                        color = NetflixLightGray,
+                        color = TvMuted,
                         fontSize = 12.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -147,15 +147,15 @@ fun TvNextEpisodePrompt(
                     Button(
                         onClick = onPlayNext,
                         colors = ButtonDefaults.colors(
-                            containerColor = NetflixRed,
-                            contentColor = NetflixWhite,
+                            containerColor = TvBrand,
+                            contentColor = TvOnSurface,
                             focusedContainerColor = Color(0xFFB81D24),
-                            focusedContentColor = NetflixWhite
+                            focusedContentColor = TvOnSurface
                         ),
                         shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)),
                         scale = ButtonDefaults.scale(focusedScale = 1.05f),
                         border = ButtonDefaults.border(
-                            focusedBorder = Border(BorderStroke(2.dp, NetflixWhite))
+                            focusedBorder = Border(BorderStroke(2.dp, TvOnSurface))
                         ),
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
                         modifier = Modifier
@@ -184,14 +184,14 @@ fun TvNextEpisodePrompt(
                         onClick = onDismiss,
                         colors = ButtonDefaults.colors(
                             containerColor = Color(0x33FFFFFF),
-                            contentColor = NetflixWhite,
-                            focusedContainerColor = NetflixWhite,
+                            contentColor = TvOnSurface,
+                            focusedContainerColor = TvOnSurface,
                             focusedContentColor = Color.Black
                         ),
                         shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)),
                         scale = ButtonDefaults.scale(focusedScale = 1.05f),
                         border = ButtonDefaults.border(
-                            focusedBorder = Border(BorderStroke(2.dp, NetflixWhite))
+                            focusedBorder = Border(BorderStroke(2.dp, TvOnSurface))
                         ),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                     ) {

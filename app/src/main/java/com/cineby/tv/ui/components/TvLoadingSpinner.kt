@@ -16,14 +16,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.cineby.tv.ui.theme.NetflixRed
+import com.cineby.tv.ui.theme.TvBrand
 
 @Composable
 fun TvLoadingSpinner(
     modifier: Modifier = Modifier,
     size: Dp = 48.dp,
     strokeWidth: Dp = 4.dp,
-    color: Color = NetflixRed
+    color: Color = TvBrand
 ) {
     val transition = rememberInfiniteTransition(label = "spinnerTransition")
     val rotation by transition.animateFloat(

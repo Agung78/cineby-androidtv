@@ -57,11 +57,11 @@ import com.cineby.tv.R
 import com.cineby.tv.data.api.ApiClient
 import com.cineby.tv.data.model.SubdlResponse
 import com.cineby.tv.data.repository.SubdlRepository
-import com.cineby.tv.ui.theme.NetflixBlack
-import com.cineby.tv.ui.theme.NetflixDarkCard
-import com.cineby.tv.ui.theme.NetflixLightGray
-import com.cineby.tv.ui.theme.NetflixRed
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.theme.TvBackground
+import com.cineby.tv.ui.theme.TvSurface
+import com.cineby.tv.ui.theme.TvMuted
+import com.cineby.tv.ui.theme.TvBrand
+import com.cineby.tv.ui.theme.TvOnSurface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -180,7 +180,7 @@ fun SettingsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(NetflixBlack)
+            .background(TvBackground)
             .verticalScroll(scrollState)
             .padding(horizontal = 36.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -190,20 +190,20 @@ fun SettingsScreen(
             Icon(
                 imageVector = Icons.Default.Settings,
                 contentDescription = null,
-                tint = NetflixRed,
+                tint = TvBrand,
                 modifier = Modifier.size(28.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(
                     text = stringResource(R.string.settings),
-                    color = NetflixWhite,
+                    color = TvOnSurface,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = stringResource(R.string.settings_desc),
-                    color = NetflixLightGray,
+                    color = TvMuted,
                     fontSize = 13.sp
                 )
             }
@@ -215,7 +215,7 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(NetflixDarkCard, RoundedCornerShape(10.dp))
+                .background(TvSurface, RoundedCornerShape(10.dp))
                 .padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -223,13 +223,13 @@ fun SettingsScreen(
                 Icon(
                     imageVector = Icons.Default.Dns,
                     contentDescription = null,
-                    tint = NetflixWhite,
+                    tint = TvOnSurface,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = stringResource(R.string.backend_api_header),
-                    color = NetflixWhite,
+                    color = TvOnSurface,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -238,7 +238,7 @@ fun SettingsScreen(
             // Current URL Info
             Text(
                 text = stringResource(R.string.active_backend_url, currentActiveUrl),
-                color = NetflixLightGray,
+                color = TvMuted,
                 fontSize = 12.sp
             )
 
@@ -247,10 +247,10 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .background(NetflixBlack, RoundedCornerShape(6.dp))
+                    .background(TvBackground, RoundedCornerShape(6.dp))
                     .border(
                         width = if (isUrlInputFocused) 2.dp else 1.dp,
-                        color = if (isUrlInputFocused) NetflixWhite else NetflixDarkCard,
+                        color = if (isUrlInputFocused) TvOnSurface else TvSurface,
                         shape = RoundedCornerShape(6.dp)
                     )
                     .padding(horizontal = 12.dp),
@@ -264,11 +264,11 @@ fun SettingsScreen(
                         backendTestStatus = null
                     },
                     textStyle = TextStyle(
-                        color = NetflixWhite,
+                        color = TvOnSurface,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     ),
-                    cursorBrush = SolidColor(NetflixRed),
+                    cursorBrush = SolidColor(TvBrand),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                     singleLine = true,
@@ -279,7 +279,7 @@ fun SettingsScreen(
                         if (inputUrl.isEmpty()) {
                             Text(
                                 text = "http://192.168.x.x:5376/",
-                                color = NetflixLightGray,
+                                color = TvMuted,
                                 fontSize = 13.sp
                             )
                         }
@@ -293,10 +293,10 @@ fun SettingsScreen(
                 Button(
                     onClick = { runTestBackend(inputUrl) },
                     colors = ButtonDefaults.colors(
-                        containerColor = NetflixBlack,
-                        focusedContainerColor = NetflixWhite,
-                        contentColor = NetflixWhite,
-                        focusedContentColor = NetflixBlack
+                        containerColor = TvBackground,
+                        focusedContainerColor = TvOnSurface,
+                        contentColor = TvOnSurface,
+                        focusedContentColor = TvBackground
                     ),
                     shape = ButtonDefaults.shape(RoundedCornerShape(6.dp)),
                     modifier = Modifier.height(38.dp)
@@ -323,10 +323,10 @@ fun SettingsScreen(
                         saveMessage = null
                     },
                     colors = ButtonDefaults.colors(
-                        containerColor = NetflixBlack.copy(alpha = 0.5f),
-                        focusedContainerColor = NetflixWhite,
-                        contentColor = NetflixLightGray,
-                        focusedContentColor = NetflixBlack
+                        containerColor = TvBackground.copy(alpha = 0.5f),
+                        focusedContainerColor = TvOnSurface,
+                        contentColor = TvMuted,
+                        focusedContentColor = TvBackground
                     ),
                     shape = ButtonDefaults.shape(RoundedCornerShape(6.dp)),
                     modifier = Modifier.height(38.dp)
@@ -340,13 +340,13 @@ fun SettingsScreen(
                     Icon(
                         imageVector = if (isBackendTestSuccess) Icons.Default.CheckCircle else Icons.Default.Error,
                         contentDescription = null,
-                        tint = if (isBackendTestSuccess) Color(0xFF4CAF50) else NetflixRed,
+                        tint = if (isBackendTestSuccess) Color(0xFF4CAF50) else TvBrand,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = backendTestStatus ?: "",
-                        color = if (isBackendTestSuccess) Color(0xFF4CAF50) else NetflixRed,
+                        color = if (isBackendTestSuccess) Color(0xFF4CAF50) else TvBrand,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -360,7 +360,7 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(NetflixDarkCard, RoundedCornerShape(10.dp))
+                .background(TvSurface, RoundedCornerShape(10.dp))
                 .padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -368,13 +368,13 @@ fun SettingsScreen(
                 Icon(
                     imageVector = Icons.Default.Subtitles,
                     contentDescription = null,
-                    tint = NetflixWhite,
+                    tint = TvOnSurface,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = stringResource(R.string.subdl_api_header),
-                    color = NetflixWhite,
+                    color = TvOnSurface,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -382,7 +382,7 @@ fun SettingsScreen(
 
             Text(
                 text = stringResource(R.string.subdl_api_desc),
-                color = NetflixLightGray,
+                color = TvMuted,
                 fontSize = 12.sp
             )
 
@@ -391,10 +391,10 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .background(NetflixBlack, RoundedCornerShape(6.dp))
+                    .background(TvBackground, RoundedCornerShape(6.dp))
                     .border(
                         width = if (isApiKeyInputFocused) 2.dp else 1.dp,
-                        color = if (isApiKeyInputFocused) NetflixWhite else NetflixDarkCard,
+                        color = if (isApiKeyInputFocused) TvOnSurface else TvSurface,
                         shape = RoundedCornerShape(6.dp)
                     )
                     .padding(horizontal = 12.dp),
@@ -403,7 +403,7 @@ fun SettingsScreen(
                 Icon(
                     imageVector = Icons.Default.Key,
                     contentDescription = null,
-                    tint = if (isApiKeyInputFocused) NetflixWhite else NetflixLightGray,
+                    tint = if (isApiKeyInputFocused) TvOnSurface else TvMuted,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -415,11 +415,11 @@ fun SettingsScreen(
                         subdlTestStatus = null
                     },
                     textStyle = TextStyle(
-                        color = NetflixWhite,
+                        color = TvOnSurface,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     ),
-                    cursorBrush = SolidColor(NetflixRed),
+                    cursorBrush = SolidColor(TvBrand),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                     singleLine = true,
@@ -430,7 +430,7 @@ fun SettingsScreen(
                         if (inputApiKey.isEmpty()) {
                             Text(
                                 text = "subdl__your_api_key_here",
-                                color = NetflixLightGray,
+                                color = TvMuted,
                                 fontSize = 13.sp
                             )
                         }
@@ -444,10 +444,10 @@ fun SettingsScreen(
                 Button(
                     onClick = { runTestSubdl(inputApiKey) },
                     colors = ButtonDefaults.colors(
-                        containerColor = NetflixBlack,
-                        focusedContainerColor = NetflixWhite,
-                        contentColor = NetflixWhite,
-                        focusedContentColor = NetflixBlack
+                        containerColor = TvBackground,
+                        focusedContainerColor = TvOnSurface,
+                        contentColor = TvOnSurface,
+                        focusedContentColor = TvBackground
                     ),
                     shape = ButtonDefaults.shape(RoundedCornerShape(6.dp)),
                     modifier = Modifier.height(38.dp)
@@ -474,10 +474,10 @@ fun SettingsScreen(
                         saveMessage = null
                     },
                     colors = ButtonDefaults.colors(
-                        containerColor = NetflixBlack.copy(alpha = 0.5f),
-                        focusedContainerColor = NetflixWhite,
-                        contentColor = NetflixLightGray,
-                        focusedContentColor = NetflixBlack
+                        containerColor = TvBackground.copy(alpha = 0.5f),
+                        focusedContainerColor = TvOnSurface,
+                        contentColor = TvMuted,
+                        focusedContentColor = TvBackground
                     ),
                     shape = ButtonDefaults.shape(RoundedCornerShape(6.dp)),
                     modifier = Modifier.height(38.dp)
@@ -491,13 +491,13 @@ fun SettingsScreen(
                     Icon(
                         imageVector = if (isSubdlTestSuccess) Icons.Default.CheckCircle else Icons.Default.Error,
                         contentDescription = null,
-                        tint = if (isSubdlTestSuccess) Color(0xFF4CAF50) else NetflixRed,
+                        tint = if (isSubdlTestSuccess) Color(0xFF4CAF50) else TvBrand,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = subdlTestStatus ?: "",
-                        color = if (isSubdlTestSuccess) Color(0xFF4CAF50) else NetflixRed,
+                        color = if (isSubdlTestSuccess) Color(0xFF4CAF50) else TvBrand,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -529,10 +529,10 @@ fun SettingsScreen(
                     saveMessage = context.getString(R.string.settings_saved_success)
                 },
                 colors = ButtonDefaults.colors(
-                    containerColor = NetflixRed,
+                    containerColor = TvBrand,
                     focusedContainerColor = Color(0xFFE50914).copy(alpha = 0.8f),
-                    contentColor = NetflixWhite,
-                    focusedContentColor = NetflixWhite
+                    contentColor = TvOnSurface,
+                    focusedContentColor = TvOnSurface
                 ),
                 shape = ButtonDefaults.shape(RoundedCornerShape(6.dp)),
                 modifier = Modifier.height(46.dp)

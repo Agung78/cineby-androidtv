@@ -42,11 +42,11 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.cineby.tv.R
 import com.cineby.tv.ui.components.TvContinueWatchingCard
-import com.cineby.tv.ui.theme.NetflixBlack
-import com.cineby.tv.ui.theme.NetflixDarkCard
-import com.cineby.tv.ui.theme.NetflixLightGray
-import com.cineby.tv.ui.theme.NetflixRed
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.theme.TvBackground
+import com.cineby.tv.ui.theme.TvSurface
+import com.cineby.tv.ui.theme.TvMuted
+import com.cineby.tv.ui.theme.TvBrand
+import com.cineby.tv.ui.theme.TvOnSurface
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -65,7 +65,7 @@ fun ContinueWatchingScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(NetflixBlack)
+            .background(TvBackground)
             .padding(horizontal = 28.dp, vertical = 20.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -78,7 +78,7 @@ fun ContinueWatchingScreen(
                 Column {
                     Text(
                         text = stringResource(R.string.continue_watching),
-                        color = NetflixWhite,
+                        color = TvOnSurface,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -89,7 +89,7 @@ fun ContinueWatchingScreen(
                         } else {
                             stringResource(R.string.continue_watching_subtitle)
                         },
-                        color = NetflixLightGray,
+                        color = TvMuted,
                         fontSize = 12.sp
                     )
                 }
@@ -98,14 +98,14 @@ fun ContinueWatchingScreen(
                     Button(
                         onClick = { viewModel.clearAll() },
                         colors = ButtonDefaults.colors(
-                            containerColor = NetflixDarkCard,
-                            contentColor = NetflixLightGray,
-                            focusedContainerColor = NetflixRed,
-                            focusedContentColor = NetflixWhite
+                            containerColor = TvSurface,
+                            contentColor = TvMuted,
+                            focusedContainerColor = TvBrand,
+                            focusedContentColor = TvOnSurface
                         ),
                         border = ButtonDefaults.border(
                             focusedBorder = Border(
-                                border = BorderStroke(2.dp, NetflixWhite)
+                                border = BorderStroke(2.dp, TvOnSurface)
                             )
                         ),
                         shape = ButtonDefaults.shape(shape = RoundedCornerShape(6.dp))
@@ -138,32 +138,32 @@ fun ContinueWatchingScreen(
                         Icon(
                             imageVector = Icons.Default.History,
                             contentDescription = null,
-                            tint = NetflixLightGray.copy(alpha = 0.5f),
+                            tint = TvMuted.copy(alpha = 0.5f),
                             modifier = Modifier.size(64.dp)
                         )
                         Spacer(modifier = Modifier.height(14.dp))
                         Text(
                             text = stringResource(R.string.no_history_title),
-                            color = NetflixWhite,
+                            color = TvOnSurface,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = stringResource(R.string.no_history_desc),
-                            color = NetflixLightGray,
+                            color = TvMuted,
                             fontSize = 13.sp
                         )
                         Spacer(modifier = Modifier.height(18.dp))
                         Button(
                             onClick = onNavigateToHome,
                             colors = ButtonDefaults.colors(
-                                containerColor = NetflixRed,
-                                contentColor = NetflixWhite
+                                containerColor = TvBrand,
+                                contentColor = TvOnSurface
                             ),
                             scale = ButtonDefaults.scale(focusedScale = 1.08f),
                             border = ButtonDefaults.border(
-                                focusedBorder = Border(BorderStroke(2.dp, NetflixWhite))
+                                focusedBorder = Border(BorderStroke(2.dp, TvOnSurface))
                             ),
                             shape = ButtonDefaults.shape(shape = RoundedCornerShape(6.dp))
                         ) {
@@ -223,12 +223,12 @@ fun ContinueWatchingScreen(
                                         )
                                     },
                                     colors = ButtonDefaults.colors(
-                                        containerColor = NetflixRed,
-                                        contentColor = NetflixWhite
+                                        containerColor = TvBrand,
+                                        contentColor = TvOnSurface
                                     ),
                                     scale = ButtonDefaults.scale(focusedScale = 1.05f),
                                     border = ButtonDefaults.border(
-                                        focusedBorder = Border(BorderStroke(1.5.dp, NetflixWhite))
+                                        focusedBorder = Border(BorderStroke(1.5.dp, TvOnSurface))
                                     ),
                                     shape = ButtonDefaults.shape(shape = RoundedCornerShape(4.dp)),
                                     modifier = Modifier.weight(1f)
@@ -245,14 +245,14 @@ fun ContinueWatchingScreen(
                                 Button(
                                     onClick = { viewModel.removeItem(item.contentId) },
                                     colors = ButtonDefaults.colors(
-                                        containerColor = NetflixDarkCard,
-                                        contentColor = NetflixLightGray,
-                                        focusedContainerColor = NetflixRed.copy(alpha = 0.8f),
-                                        focusedContentColor = NetflixWhite
+                                        containerColor = TvSurface,
+                                        contentColor = TvMuted,
+                                        focusedContainerColor = TvBrand.copy(alpha = 0.8f),
+                                        focusedContentColor = TvOnSurface
                                     ),
                                     scale = ButtonDefaults.scale(focusedScale = 1.05f),
                                     border = ButtonDefaults.border(
-                                        focusedBorder = Border(BorderStroke(1.5.dp, NetflixWhite))
+                                        focusedBorder = Border(BorderStroke(1.5.dp, TvOnSurface))
                                     ),
                                     shape = ButtonDefaults.shape(shape = RoundedCornerShape(4.dp))
                                 ) {

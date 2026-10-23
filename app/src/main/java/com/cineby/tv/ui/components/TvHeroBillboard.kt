@@ -41,25 +41,25 @@ import coil.request.ImageRequest
 import coil.size.Precision
 import com.cineby.tv.R
 import com.cineby.tv.data.model.MovieItem
-import com.cineby.tv.ui.theme.NetflixBlack
-import com.cineby.tv.ui.theme.NetflixGold
-import com.cineby.tv.ui.theme.NetflixLightGray
-import com.cineby.tv.ui.theme.NetflixRed
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.theme.TvBackground
+import com.cineby.tv.ui.theme.TvGold
+import com.cineby.tv.ui.theme.TvMuted
+import com.cineby.tv.ui.theme.TvBrand
+import com.cineby.tv.ui.theme.TvOnSurface
 
 private val HeroBottomBrush = Brush.verticalGradient(
     colors = listOf(
         Color.Transparent,
-        NetflixBlack.copy(alpha = 0.5f),
-        NetflixBlack
+        TvBackground.copy(alpha = 0.5f),
+        TvBackground
     ),
     startY = 80f
 )
 
 private val HeroLeftBrush = Brush.horizontalGradient(
     colors = listOf(
-        NetflixBlack.copy(alpha = 0.95f),
-        NetflixBlack.copy(alpha = 0.6f),
+        TvBackground.copy(alpha = 0.95f),
+        TvBackground.copy(alpha = 0.6f),
         Color.Transparent
     )
 )
@@ -83,14 +83,14 @@ fun TvHeroBillboard(
             .size(1280, 720)
             .precision(Precision.INEXACT)
             .allowRgb565(true)
-            .crossfade(false)
+            .crossfade(true)
             .build()
     }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(340.dp)
+            .height(420.dp)
     ) {
         // Dynamic Backdrop
         AsyncImage(
@@ -119,15 +119,15 @@ fun TvHeroBillboard(
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .width(480.dp)
-                .padding(start = 24.dp, top = 24.dp, bottom = 20.dp),
+                .width(560.dp)
+                .padding(start = 48.dp, top = 24.dp, bottom = 28.dp),
             verticalArrangement = Arrangement.Bottom
         ) {
             // Title
             Text(
                 text = movie.title,
-                color = NetflixWhite,
-                fontSize = 28.sp,
+                color = TvOnSurface,
+                fontSize = 36.sp,
                 fontWeight = FontWeight.Black,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -145,13 +145,13 @@ fun TvHeroBillboard(
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = null,
-                            tint = NetflixGold,
+                            tint = TvGold,
                             modifier = Modifier.size(14.dp)
                         )
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
                             text = "${movie.formattedRating} / 10",
-                            color = NetflixWhite,
+                            color = TvOnSurface,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -161,7 +161,7 @@ fun TvHeroBillboard(
                 movie.releaseDate?.take(4)?.let { year ->
                     Text(
                         text = year,
-                        color = NetflixLightGray,
+                        color = TvMuted,
                         fontSize = 12.sp
                     )
                 }
@@ -174,12 +174,41 @@ fun TvHeroBillboard(
                     ) {
                         Text(
                             text = q,
-                            color = NetflixWhite,
+                            color = TvOnSurface,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                 }
+            }
+            val metaLine = buildList {
+                movie.releaseDate?.take(4)?.let { add(it) }
+                movie.genres.take(3).forEach { add(it.name) }
+                movie.quality?.let { add(it.uppercase()) }
+            }.joinToString("  ·  ")
+            if (metaLine.isNotBlank()) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = metaLine,
+                    color = TvMuted,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            // Synopsis
+            if (!movie.overview.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = movie.overview!!,
+                    color = TvOnSurface.copy(alpha = 0.85f),
+                    fontSize = 14.sp,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.width(520.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -192,10 +221,10 @@ fun TvHeroBillboard(
                     onClick = onPlayClick,
                     modifier = playButtonModifier,
                     colors = ButtonDefaults.colors(
-                        containerColor = NetflixWhite,
-                        contentColor = NetflixBlack,
-                        focusedContainerColor = NetflixRed,
-                        focusedContentColor = NetflixWhite
+                        containerColor = TvOnSurface,
+                        contentColor = TvBackground,
+                        focusedContainerColor = TvBrand,
+                        focusedContentColor = TvOnSurface
                     ),
                     shape = ButtonDefaults.shape(shape = RoundedCornerShape(6.dp))
                 ) {
@@ -220,9 +249,9 @@ fun TvHeroBillboard(
                     onClick = onDetailsClick,
                     colors = ButtonDefaults.colors(
                         containerColor = Color(0x66FFFFFF),
-                        contentColor = NetflixWhite,
-                        focusedContainerColor = NetflixWhite,
-                        focusedContentColor = NetflixBlack
+                        contentColor = TvOnSurface,
+                        focusedContainerColor = TvOnSurface,
+                        focusedContentColor = TvBackground
                     ),
                     shape = ButtonDefaults.shape(shape = RoundedCornerShape(6.dp))
                 ) {

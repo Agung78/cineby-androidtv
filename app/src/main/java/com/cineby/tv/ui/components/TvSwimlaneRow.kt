@@ -4,16 +4,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.foundation.PivotOffsets
+import androidx.tv.foundation.lazy.list.TvLazyRow
+import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.Text
 import com.cineby.tv.data.model.MovieItem
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.theme.TvOnSurface
 
 @Composable
 fun TvSwimlaneRow(
@@ -28,18 +29,19 @@ fun TvSwimlaneRow(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 14.dp)
     ) {
         Text(
             text = title,
-            color = NetflixWhite,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 24.dp, bottom = 8.dp)
+            color = TvOnSurface,
+            fontSize = 19.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(start = 48.dp, bottom = 10.dp)
         )
 
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 6.dp)
+        TvLazyRow(
+            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 6.dp),
+            pivotOffsets = PivotOffsets(parentFraction = 0.15f, childFraction = 0f)
         ) {
             items(items, key = { it.id }) { movie ->
                 TvMovieCard(

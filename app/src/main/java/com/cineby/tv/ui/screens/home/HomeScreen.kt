@@ -4,7 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -17,15 +17,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.tv.material3.Text
 import com.cineby.tv.R
 import com.cineby.tv.data.model.MovieItem
 import com.cineby.tv.ui.components.TvContinueWatchingRow
+import com.cineby.tv.ui.components.TvErrorRetry
 import com.cineby.tv.ui.components.TvHeroBillboard
-import com.cineby.tv.ui.components.TvLoadingSpinner
+import com.cineby.tv.ui.components.TvHeroSkeleton
+import com.cineby.tv.ui.components.TvSkeletonRow
 import com.cineby.tv.ui.components.TvSwimlaneRow
-import com.cineby.tv.ui.theme.NetflixBlack
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.theme.TvBackground
 
 @Composable
 fun HomeScreen(
@@ -54,22 +54,21 @@ fun HomeScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(NetflixBlack)
+            .background(TvBackground)
     ) {
         if (uiState.isLoading) {
-            TvLoadingSpinner(
-                modifier = Modifier.align(Alignment.Center)
-            )
+            TvLazyColumn(modifier = Modifier.fillMaxSize()) {
+                item { TvHeroSkeleton() }
+                item { TvSkeletonRow() }
+                item { TvSkeletonRow(cardCount = 4) }
+            }
         } else if (uiState.error != null) {
-            Text(
-                text = uiState.error ?: "",
-                color = NetflixWhite,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(24.dp)
+            TvErrorRetry(
+                message = uiState.error ?: "",
+                onRetry = { viewModel.loadHomeData() }
             )
         } else {
-            LazyColumn(
+            TvLazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
                 // 1. Dynamic Hero Billboard

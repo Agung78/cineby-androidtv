@@ -49,13 +49,14 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.cineby.tv.R
+import com.cineby.tv.ui.components.TvErrorRetry
 import com.cineby.tv.ui.components.TvLoadingSpinner
 import com.cineby.tv.ui.components.TvMovieCard
-import com.cineby.tv.ui.theme.NetflixBlack
-import com.cineby.tv.ui.theme.NetflixDarkCard
-import com.cineby.tv.ui.theme.NetflixLightGray
-import com.cineby.tv.ui.theme.NetflixRed
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.theme.TvBackground
+import com.cineby.tv.ui.theme.TvSurface
+import com.cineby.tv.ui.theme.TvMuted
+import com.cineby.tv.ui.theme.TvBrand
+import com.cineby.tv.ui.theme.TvOnSurface
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -73,18 +74,18 @@ fun SearchScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(NetflixBlack)
-            .padding(horizontal = 28.dp, vertical = 20.dp)
+            .background(TvBackground)
+            .padding(horizontal = 48.dp, vertical = 20.dp)
     ) {
         // Search Input Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .background(NetflixDarkCard, RoundedCornerShape(8.dp))
+                .background(TvSurface, RoundedCornerShape(8.dp))
                 .border(
                     width = if (isInputFocused) 2.dp else 1.dp,
-                    color = if (isInputFocused) NetflixWhite else NetflixDarkCard,
+                    color = if (isInputFocused) TvOnSurface else TvSurface,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(horizontal = 14.dp),
@@ -93,7 +94,7 @@ fun SearchScreen(
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = "Search",
-                tint = if (isInputFocused) NetflixWhite else NetflixLightGray
+                tint = if (isInputFocused) TvOnSurface else TvMuted
             )
 
             Spacer(modifier = Modifier.width(10.dp))
@@ -102,11 +103,11 @@ fun SearchScreen(
                 value = uiState.query,
                 onValueChange = { viewModel.onQueryChange(it) },
                 textStyle = TextStyle(
-                    color = NetflixWhite,
+                    color = TvOnSurface,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium
                 ),
-                cursorBrush = SolidColor(NetflixRed),
+                cursorBrush = SolidColor(TvBrand),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
                     onSearch = {
@@ -121,7 +122,7 @@ fun SearchScreen(
                     if (uiState.query.isEmpty()) {
                         Text(
                             text = stringResource(R.string.search_placeholder),
-                            color = NetflixLightGray,
+                            color = TvMuted,
                             fontSize = 14.sp
                         )
                     }
@@ -133,10 +134,10 @@ fun SearchScreen(
                 Button(
                     onClick = { viewModel.onQueryChange("") },
                     colors = ButtonDefaults.colors(
-                        containerColor = NetflixBlack,
-                        contentColor = NetflixLightGray,
-                        focusedContainerColor = NetflixRed,
-                        focusedContentColor = NetflixWhite
+                        containerColor = TvBackground,
+                        contentColor = TvMuted,
+                        focusedContainerColor = TvBrand,
+                        focusedContentColor = TvOnSurface
                     ),
                     shape = ButtonDefaults.shape(shape = RoundedCornerShape(6.dp))
                 ) {
@@ -154,7 +155,7 @@ fun SearchScreen(
         ) {
             Text(
                 text = stringResource(R.string.popular_searches),
-                color = NetflixLightGray,
+                color = TvMuted,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(end = 8.dp)
             )
@@ -165,10 +166,10 @@ fun SearchScreen(
                     Button(
                         onClick = { viewModel.onQueryChange(tag) },
                         colors = ButtonDefaults.colors(
-                            containerColor = NetflixDarkCard,
-                            contentColor = NetflixLightGray,
-                            focusedContainerColor = NetflixRed,
-                            focusedContentColor = NetflixWhite
+                            containerColor = TvSurface,
+                            contentColor = TvMuted,
+                            focusedContainerColor = TvBrand,
+                            focusedContentColor = TvOnSurface
                         ),
                         shape = ButtonDefaults.shape(shape = RoundedCornerShape(4.dp))
                     ) {
@@ -186,16 +187,21 @@ fun SearchScreen(
                 TvLoadingSpinner(
                     modifier = Modifier.align(Alignment.Center)
                 )
+            } else if (uiState.error != null) {
+                TvErrorRetry(
+                    message = uiState.error ?: "",
+                    onRetry = { viewModel.onQueryChange(uiState.query) }
+                )
             } else if (uiState.results.isEmpty() && uiState.query.isNotBlank()) {
                 Text(
                     text = stringResource(R.string.no_results_for, uiState.query),
-                    color = NetflixLightGray,
+                    color = TvMuted,
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else if (uiState.results.isEmpty()) {
                 Text(
                     text = stringResource(R.string.search_hint),
-                    color = NetflixLightGray,
+                    color = TvMuted,
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {

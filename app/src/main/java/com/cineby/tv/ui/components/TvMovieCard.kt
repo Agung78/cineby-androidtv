@@ -1,6 +1,5 @@
 package com.cineby.tv.ui.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,23 +27,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.Border
 import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Glow
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Precision
-import com.cineby.tv.ui.theme.NetflixDarkCard
-import com.cineby.tv.ui.theme.NetflixGold
-import com.cineby.tv.ui.theme.NetflixLightGray
-import com.cineby.tv.ui.theme.NetflixRed
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.theme.TvSurface
+import com.cineby.tv.ui.theme.TvGold
+import com.cineby.tv.ui.theme.TvMuted
+import com.cineby.tv.ui.theme.TvBrand
+import com.cineby.tv.ui.theme.TvOnSurface
 
-private val CardShape = RoundedCornerShape(8.dp)
 private val BottomScrimBrush = Brush.verticalGradient(
     colors = listOf(Color.Transparent, Color(0xEE141414))
 )
@@ -83,19 +78,15 @@ fun TvMovieCard(
                     onFocus?.invoke()
                 }
             },
-        scale = CardDefaults.scale(focusedScale = 1.0f),
-        glow = CardDefaults.glow(focusedGlow = Glow.None),
-        shape = CardDefaults.shape(shape = CardShape),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, NetflixWhite)
-            )
-        )
+        scale = tvCardScale(),
+        glow = tvCardGlow(),
+        shape = tvCardShape(),
+        border = tvCardBorder()
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(NetflixDarkCard)
+                .background(TvSurface)
         ) {
             AsyncImage(
                 model = imageRequest,
@@ -113,18 +104,18 @@ fun TvMovieCard(
                     .background(BottomScrimBrush)
             )
 
-            // Top quality badge (if any)
+            // Bottom-left quality badge (if any)
             if (!quality.isNullOrBlank()) {
                 Box(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.BottomStart)
                         .padding(6.dp)
-                        .background(NetflixRed.copy(alpha = 0.9f), RoundedCornerShape(3.dp))
+                        .background(TvBrand.copy(alpha = 0.9f), RoundedCornerShape(3.dp))
                         .padding(horizontal = 4.dp, vertical = 2.dp)
                 ) {
                     Text(
                         text = quality,
-                        color = NetflixWhite,
+                        color = TvOnSurface,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -139,8 +130,8 @@ fun TvMovieCard(
             ) {
                 Text(
                     text = title,
-                    color = NetflixWhite,
-                    fontSize = 11.sp,
+                    color = TvOnSurface,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -150,13 +141,13 @@ fun TvMovieCard(
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = "Rating",
-                            tint = NetflixGold,
+                            tint = TvGold,
                             modifier = Modifier.size(10.dp)
                         )
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
                             text = rating,
-                            color = NetflixLightGray,
+                            color = TvMuted,
                             fontSize = 10.sp
                         )
                     }

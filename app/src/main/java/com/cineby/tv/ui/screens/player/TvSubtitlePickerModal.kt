@@ -49,10 +49,10 @@ import com.cineby.tv.R
 import com.cineby.tv.data.model.SubdlSubtitle
 import com.cineby.tv.data.model.SubtitleTrack
 import com.cineby.tv.ui.components.TvLoadingSpinner
-import com.cineby.tv.ui.theme.NetflixDarkCard
-import com.cineby.tv.ui.theme.NetflixLightGray
-import com.cineby.tv.ui.theme.NetflixRed
-import com.cineby.tv.ui.theme.NetflixWhite
+import com.cineby.tv.ui.theme.TvSurface
+import com.cineby.tv.ui.theme.TvMuted
+import com.cineby.tv.ui.theme.TvBrand
+import com.cineby.tv.ui.theme.TvOnSurface
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -107,13 +107,13 @@ fun TvSubtitlePickerModal(
                     Icon(
                         imageVector = Icons.Default.ClosedCaption,
                         contentDescription = null,
-                        tint = NetflixRed,
+                        tint = TvBrand,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = stringResource(R.string.audio_and_subtitles),
-                        color = NetflixWhite,
+                        color = TvOnSurface,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -149,7 +149,7 @@ fun TvSubtitlePickerModal(
                     item {
                         Text(
                             text = stringResource(R.string.default_subtitle),
-                            color = NetflixLightGray,
+                            color = TvMuted,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 10.dp, bottom = 4.dp)
@@ -179,7 +179,7 @@ fun TvSubtitlePickerModal(
                     ) {
                         Text(
                             text = stringResource(R.string.subdl_subtitles_header),
-                            color = NetflixLightGray,
+                            color = TvMuted,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -189,7 +189,7 @@ fun TvSubtitlePickerModal(
                                 onClick = onSearchSubdlClick,
                                 colors = ButtonDefaults.colors(
                                     containerColor = Color.Transparent,
-                                    contentColor = NetflixRed
+                                    contentColor = TvBrand
                                 ),
                                 shape = ButtonDefaults.shape(shape = RoundedCornerShape(4.dp)),
                                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
@@ -212,7 +212,7 @@ fun TvSubtitlePickerModal(
                     item {
                         Text(
                             text = stringResource(R.string.searching_subdl),
-                            color = NetflixLightGray,
+                            color = TvMuted,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(vertical = 12.dp)
                         )
@@ -221,7 +221,7 @@ fun TvSubtitlePickerModal(
                     item {
                         Text(
                             text = stringResource(R.string.no_subdl_found),
-                            color = NetflixLightGray,
+                            color = TvMuted,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
@@ -264,16 +264,16 @@ private fun SubtitleOptionCard(
             .height(50.dp),
         shape = CardDefaults.shape(shape = RoundedCornerShape(8.dp)),
         colors = CardDefaults.colors(
-            containerColor = if (isSelected) NetflixRed.copy(alpha = 0.25f) else NetflixDarkCard,
-            focusedContainerColor = NetflixRed
+            containerColor = if (isSelected) TvBrand.copy(alpha = 0.25f) else TvSurface,
+            focusedContainerColor = TvBrand
         ),
         scale = CardDefaults.scale(focusedScale = 1.04f),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(2.dp, NetflixWhite)
+                border = BorderStroke(2.dp, TvOnSurface)
             ),
             border = if (isSelected) {
-                Border(border = BorderStroke(1.dp, NetflixRed))
+                Border(border = BorderStroke(1.dp, TvBrand))
             } else {
                 Border.None
             }
@@ -294,14 +294,14 @@ private fun SubtitleOptionCard(
                     Box(
                         modifier = Modifier
                             .background(
-                                if (badge == "ID") NetflixRed else Color(0x66FFFFFF),
+                                if (badge == "ID") TvBrand else Color(0x66FFFFFF),
                                 RoundedCornerShape(4.dp)
                             )
                             .padding(horizontal = 5.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = badge,
-                            color = NetflixWhite,
+                            color = TvOnSurface,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -312,7 +312,7 @@ private fun SubtitleOptionCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = title,
-                        color = NetflixWhite,
+                        color = TvOnSurface,
                         fontSize = 12.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                         maxLines = 1,
@@ -321,7 +321,7 @@ private fun SubtitleOptionCard(
                     if (subtitle != null) {
                         Text(
                             text = subtitle,
-                            color = NetflixLightGray,
+                            color = TvMuted,
                             fontSize = 10.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -334,13 +334,13 @@ private fun SubtitleOptionCard(
                 Box(
                     modifier = Modifier
                         .size(20.dp)
-                        .background(NetflixRed, CircleShape),
+                        .background(TvBrand, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Selected",
-                        tint = NetflixWhite,
+                        tint = TvOnSurface,
                         modifier = Modifier.size(14.dp)
                     )
                 }
