@@ -66,12 +66,18 @@ object ApiClient {
     @Volatile
     private var staleBase: okhttp3.HttpUrl? = null
 
-    /** Call once at app start: keeps the saved/default URL if it answers, else scans the LAN for the backend. */
+    /** Call once at app start: keeps a user-saved URL if it answers, else scans the LAN (the remote default also answers /health, so it must not short-circuit the scan). */
     fun discoverBackend() {
+        val hasSaved = try {
+            CinebyTvApp.appContext.getSharedPreferences("cineby_config", Context.MODE_PRIVATE)
+                .contains(PREF_KEY_SERVER_URL)
+        } catch (_: Exception) {
+            false
+        }
         staleBase = getBaseUrl().toHttpUrl()
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                if (!ServerDiscovery.isBackend(getBaseUrl())) {
+                if (!hasSaved || !ServerDiscovery.isBackend(getBaseUrl())) {
                     ServerDiscovery.scanLan(CinebyTvApp.appContext)?.let { setBaseUrl(it) }
                 }
             } catch (_: Exception) {
