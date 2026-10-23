@@ -611,9 +611,19 @@ fun PlayerScreen(
                 availableSubtitles = resolved.subtitles,
                 selectedSubtitle = uiState.selectedSubtitle,
                 isSubtitleEnabled = uiState.isSubtitleEnabled,
+                subdlSubtitles = uiState.subdlSubtitles,
+                isSearchingSubdl = uiState.isSearchingSubdl,
                 onSelectTrack = { track ->
                     viewModel.selectSubtitleTrack(track)
                     applySubtitleTrack(track)
+                },
+                onSelectSubdl = { subdl ->
+                    viewModel.selectSubdlSubtitle(subdl) { newTrack ->
+                        applySubtitleTrack(newTrack)
+                    }
+                },
+                onSearchSubdlClick = {
+                    viewModel.searchSubdlSubtitles()
                 },
                 onDismiss = {
                     viewModel.closeSubtitlePicker()

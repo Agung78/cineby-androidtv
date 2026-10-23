@@ -84,4 +84,16 @@
     <string name="play_next_episode">Putar Sekarang</string>
     <string name="next_episode_in_seconds">Putar otomatis dalam %ds</string>
     <string name="dismiss">Tutup</string>
+    <string name="no_subdl_found">Tidak ditemukan subtitle di SubDL</string>
+    <string name="search_subdl">Cari Subtitle di SubDL</string>
+    <string name="searching_subdl">Mencari di SubDL…</string>
+    <string name="subdl_api_desc">Key ini digunakan untuk mencari &amp; mendownload subtitle otomatis dari SubDL.com jika subtitle bawaan tidak ada.</string>
+    <string name="subdl_api_header">SubDL API Key (Third-Party Subtitle)</string>
+    <string name="subdl_failed_error">Gagal menghubungi SubDL: %s</string>
+    <string name="subdl_invalid_http">SubDL merespon HTTP %d (Key tidak valid)</string>
+    <string name="subdl_quota_error">SubDL menolak: status false atau kuota habis</string>
+    <string name="subdl_subtitles_header">Pilihan Subtitle dari SubDL.com</string>
+    <string name="subdl_testing">Menguji SubDL API key...</string>
+    <string name="subdl_valid">SubDL API Key valid &amp; aktif!</string>
+    <string name="test_subdl_key">Uji SubDL Key</string>
 </resources>

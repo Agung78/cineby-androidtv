@@ -23,9 +23,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +55,8 @@ import androidx.tv.material3.Text
 import com.cineby.tv.BuildConfig
 import com.cineby.tv.R
 import com.cineby.tv.data.api.ApiClient
+import com.cineby.tv.data.model.SubdlResponse
+import com.cineby.tv.data.repository.SubdlRepository
 import com.cineby.tv.ui.theme.NetflixBlack
 import com.cineby.tv.ui.theme.NetflixDarkCard
 import com.cineby.tv.ui.theme.NetflixLightGray
@@ -81,6 +85,15 @@ fun SettingsScreen(
     var backendTestStatus by remember { mutableStateOf<String?>(null) }
     var isTestingBackend by remember { mutableStateOf(false) }
     var isBackendTestSuccess by remember { mutableStateOf(false) }
+
+    // --- SubDL API Key State ---
+    var currentActiveApiKey by remember { mutableStateOf(SubdlRepository.getApiKey()) }
+    var inputApiKey by remember { mutableStateOf(currentActiveApiKey) }
+    var isApiKeyInputFocused by remember { mutableStateOf(false) }
+
+    var subdlTestStatus by remember { mutableStateOf<String?>(null) }
+    var isTestingSubdl by remember { mutableStateOf(false) }
+    var isSubdlTestSuccess by remember { mutableStateOf(false) }
 
     // --- Global Save Notification ---
     var saveMessage by remember { mutableStateOf<String?>(null) }
@@ -121,7 +134,48 @@ fun SettingsScreen(
         }
     }
 
+    // Test SubDL API Key
+    fun runTestSubdl(targetKey: String) {
+        scope.launch {
+            isTestingSubdl = true
+            subdlTestStatus = context.getString(R.string.subdl_testing)
+            saveMessage = null
 
+            val testEndpoint = "https://api.subdl.com/api/v1/subtitles?api_key=${targetKey.trim()}&film_name=Avatar"
+
+            val result = withContext(Dispatchers.IO) {
+                try {
+                    val req = Request.Builder()
+                        .url(testEndpoint)
+                        .header("User-Agent", "Mozilla/5.0 (Android TV; Cineby)")
+                        .get()
+                        .build()
+                    ApiClient.okHttpClient.newCall(req).execute().use { resp ->
+                        if (resp.isSuccessful) {
+                            val body = resp.body?.string().orEmpty()
+                            val parsed = try {
+                                ApiClient.json.decodeFromString<SubdlResponse>(body)
+                            } catch (_: Exception) { null }
+
+                            if (parsed?.status == true) {
+                                Pair(true, context.getString(R.string.subdl_valid))
+                            } else {
+                                Pair(false, context.getString(R.string.subdl_quota_error))
+                            }
+                        } else {
+                            Pair(false, context.getString(R.string.subdl_invalid_http, resp.code))
+                        }
+                    }
+                } catch (e: Exception) {
+                    Pair(false, context.getString(R.string.subdl_failed_error, e.localizedMessage ?: ""))
+                }
+            }
+
+            isTestingSubdl = false
+            isSubdlTestSuccess = result.first
+            subdlTestStatus = result.second
+        }
+    }
 
     Column(
         modifier = modifier
@@ -301,7 +355,158 @@ fun SettingsScreen(
         }
 
         // ==========================================
-        // SECTION 2: SAVE ALL SETTINGS ACTION
+        // SECTION 2: THIRD-PARTY SUBTITLE (SUBDL)
+        // ==========================================
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(NetflixDarkCard, RoundedCornerShape(10.dp))
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Subtitles,
+                    contentDescription = null,
+                    tint = NetflixWhite,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = stringResource(R.string.subdl_api_header),
+                    color = NetflixWhite,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Text(
+                text = stringResource(R.string.subdl_api_desc),
+                color = NetflixLightGray,
+                fontSize = 12.sp
+            )
+
+            // Input Field API Key
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .background(NetflixBlack, RoundedCornerShape(6.dp))
+                    .border(
+                        width = if (isApiKeyInputFocused) 2.dp else 1.dp,
+                        color = if (isApiKeyInputFocused) NetflixWhite else NetflixDarkCard,
+                        shape = RoundedCornerShape(6.dp)
+                    )
+                    .padding(horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Key,
+                    contentDescription = null,
+                    tint = if (isApiKeyInputFocused) NetflixWhite else NetflixLightGray,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                BasicTextField(
+                    value = inputApiKey,
+                    onValueChange = {
+                        inputApiKey = it
+                        saveMessage = null
+                        subdlTestStatus = null
+                    },
+                    textStyle = TextStyle(
+                        color = NetflixWhite,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    ),
+                    cursorBrush = SolidColor(NetflixRed),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { isApiKeyInputFocused = it.isFocused },
+                    decorationBox = { inner ->
+                        if (inputApiKey.isEmpty()) {
+                            Text(
+                                text = "subdl__your_api_key_here",
+                                color = NetflixLightGray,
+                                fontSize = 13.sp
+                            )
+                        }
+                        inner()
+                    }
+                )
+            }
+
+            // SubDL Actions
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(
+                    onClick = { runTestSubdl(inputApiKey) },
+                    colors = ButtonDefaults.colors(
+                        containerColor = NetflixBlack,
+                        focusedContainerColor = NetflixWhite,
+                        contentColor = NetflixWhite,
+                        focusedContentColor = NetflixBlack
+                    ),
+                    shape = ButtonDefaults.shape(RoundedCornerShape(6.dp)),
+                    modifier = Modifier.height(38.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (isTestingSubdl) stringResource(R.string.testing) else stringResource(R.string.test_subdl_key),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+
+                Button(
+                    onClick = {
+                        inputApiKey = SubdlRepository.DEFAULT_API_KEY
+                        subdlTestStatus = null
+                        saveMessage = null
+                    },
+                    colors = ButtonDefaults.colors(
+                        containerColor = NetflixBlack.copy(alpha = 0.5f),
+                        focusedContainerColor = NetflixWhite,
+                        contentColor = NetflixLightGray,
+                        focusedContentColor = NetflixBlack
+                    ),
+                    shape = ButtonDefaults.shape(RoundedCornerShape(6.dp)),
+                    modifier = Modifier.height(38.dp)
+                ) {
+                    Text(text = stringResource(R.string.reset_default_key), fontSize = 12.sp)
+                }
+            }
+
+            if (subdlTestStatus != null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = if (isSubdlTestSuccess) Icons.Default.CheckCircle else Icons.Default.Error,
+                        contentDescription = null,
+                        tint = if (isSubdlTestSuccess) Color(0xFF4CAF50) else NetflixRed,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = subdlTestStatus ?: "",
+                        color = if (isSubdlTestSuccess) Color(0xFF4CAF50) else NetflixRed,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+        }
+
+        // ==========================================
+        // SECTION 3: SAVE ALL SETTINGS ACTION
         // ==========================================
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -315,6 +520,11 @@ fun SettingsScreen(
                     ApiClient.setBaseUrl(formattedUrl)
                     currentActiveUrl = ApiClient.getBaseUrl()
                     inputUrl = currentActiveUrl
+
+                    // Save SubDL Key
+                    SubdlRepository.setApiKey(inputApiKey)
+                    currentActiveApiKey = SubdlRepository.getApiKey()
+                    inputApiKey = currentActiveApiKey
 
                     saveMessage = context.getString(R.string.settings_saved_success)
                 },

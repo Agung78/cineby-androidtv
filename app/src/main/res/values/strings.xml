@@ -84,4 +84,16 @@
     <string name="play_next_episode">Play Next</string>
     <string name="next_episode_in_seconds">Auto-playing in %ds</string>
     <string name="dismiss">Dismiss</string>
+    <string name="no_subdl_found">No subtitles found on SubDL</string>
+    <string name="search_subdl">Search SubDL Subtitles</string>
+    <string name="searching_subdl">Searching SubDL…</string>
+    <string name="subdl_api_desc">This key is used to search and download subtitles automatically from SubDL.com when default subtitles are unavailable.</string>
+    <string name="subdl_api_header">SubDL API Key (Third-Party Subtitle)</string>
+    <string name="subdl_failed_error">Failed connecting to SubDL: %s</string>
+    <string name="subdl_invalid_http">SubDL responded HTTP %d (Invalid key)</string>
+    <string name="subdl_quota_error">SubDL rejected: status false or quota exhausted</string>
+    <string name="subdl_subtitles_header">Subtitles from SubDL.com</string>
+    <string name="subdl_testing">Testing SubDL API key...</string>
+    <string name="subdl_valid">SubDL API Key is valid and active!</string>
+    <string name="test_subdl_key">Test SubDL Key</string>
 </resources>

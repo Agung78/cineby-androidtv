@@ -7,8 +7,10 @@ import com.cineby.tv.data.local.WatchHistoryStore
 import com.cineby.tv.data.model.EpisodeItem
 import com.cineby.tv.data.model.ResolvedPlayback
 import com.cineby.tv.data.model.Season
+import com.cineby.tv.data.model.SubdlSubtitle
 import com.cineby.tv.data.model.SubtitleTrack
 import com.cineby.tv.data.repository.CinebyRepository
+import com.cineby.tv.data.repository.SubdlRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +34,8 @@ data class PlayerUiState(
     val initialPositionMs: Long = 0L,
     val error: String? = null,
     val isSubtitlePickerVisible: Boolean = false,
+    val subdlSubtitles: List<SubdlSubtitle> = emptyList(),
+    val isSearchingSubdl: Boolean = false,
     val nextEpisode: NextEpisodeInfo? = null,
     val isNextEpisodeDismissed: Boolean = false
 )
@@ -269,10 +273,30 @@ class PlayerViewModel(
 
     fun openSubtitlePicker() {
         _uiState.value = _uiState.value.copy(isSubtitlePickerVisible = true)
+        if (_uiState.value.subdlSubtitles.isEmpty()) {
+            searchSubdlSubtitles()
+        }
     }
 
     fun closeSubtitlePicker() {
         _uiState.value = _uiState.value.copy(isSubtitlePickerVisible = false)
+    }
+
+    fun searchSubdlSubtitles() {
+        val title = currentContentTitle
+        if (title.isBlank()) return
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isSearchingSubdl = true)
+            val results = SubdlRepository.searchAllSubtitles(
+                title = title,
+                type = if (currentContentType == "episode") "tv" else "movie"
+            )
+            _uiState.value = _uiState.value.copy(
+                isSearchingSubdl = false,
+                subdlSubtitles = results
+            )
+        }
     }
 
     fun selectSubtitleTrack(track: SubtitleTrack?) {
@@ -281,6 +305,36 @@ class PlayerViewModel(
             isSubtitleEnabled = track != null,
             isSubtitlePickerVisible = false
         )
+    }
+
+    fun selectSubdlSubtitle(
+        sub: SubdlSubtitle,
+        onSubtitleReady: (SubtitleTrack) -> Unit
+    ) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isSearchingSubdl = true)
+            val downloaded = SubdlRepository.downloadSubtitle(
+                sub = sub,
+                context = getApplication<Application>().applicationContext
+            )
+            _uiState.value = _uiState.value.copy(isSearchingSubdl = false)
+
+            if (downloaded != null) {
+                val currentStream = _uiState.value.resolvedStream
+                if (currentStream != null) {
+                    val updatedSubs = currentStream.subtitles.toMutableList()
+                    updatedSubs.removeAll { it.path == downloaded.path }
+                    updatedSubs.add(0, downloaded)
+                    _uiState.value = _uiState.value.copy(
+                        resolvedStream = currentStream.copy(subtitles = updatedSubs),
+                        selectedSubtitle = downloaded,
+                        isSubtitleEnabled = true,
+                        isSubtitlePickerVisible = false
+                    )
+                }
+                onSubtitleReady(downloaded)
+            }
+        }
     }
 
     fun toggleSubtitle() {

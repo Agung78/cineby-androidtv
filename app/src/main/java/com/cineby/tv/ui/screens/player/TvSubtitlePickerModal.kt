@@ -46,6 +46,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.cineby.tv.R
+import com.cineby.tv.data.model.SubdlSubtitle
 import com.cineby.tv.data.model.SubtitleTrack
 import com.cineby.tv.ui.components.TvLoadingSpinner
 import com.cineby.tv.ui.theme.NetflixDarkCard
@@ -60,7 +61,11 @@ fun TvSubtitlePickerModal(
     availableSubtitles: List<SubtitleTrack>,
     selectedSubtitle: SubtitleTrack?,
     isSubtitleEnabled: Boolean,
+    subdlSubtitles: List<SubdlSubtitle>,
+    isSearchingSubdl: Boolean,
     onSelectTrack: (SubtitleTrack?) -> Unit,
+    onSelectSubdl: (SubdlSubtitle) -> Unit,
+    onSearchSubdlClick: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -113,6 +118,10 @@ fun TvSubtitlePickerModal(
                         fontWeight = FontWeight.Bold
                     )
                 }
+
+                if (isSearchingSubdl) {
+                    TvLoadingSpinner(modifier = Modifier.size(24.dp))
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -155,6 +164,81 @@ fun TvSubtitlePickerModal(
                             badge = track.lang.uppercase(),
                             isSelected = isSelected,
                             onClick = { onSelectTrack(track) }
+                        )
+                    }
+                }
+
+                // 3. SubDL.com Subtitles
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 14.dp, bottom = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = stringResource(R.string.subdl_subtitles_header),
+                            color = NetflixLightGray,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        if (!isSearchingSubdl) {
+                            Button(
+                                onClick = onSearchSubdlClick,
+                                colors = ButtonDefaults.colors(
+                                    containerColor = Color.Transparent,
+                                    contentColor = NetflixRed
+                                ),
+                                shape = ButtonDefaults.shape(shape = RoundedCornerShape(4.dp)),
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Refresh,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(text = stringResource(R.string.search_subdl), fontSize = 10.sp)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (isSearchingSubdl && subdlSubtitles.isEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(R.string.searching_subdl),
+                            color = NetflixLightGray,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(vertical = 12.dp)
+                        )
+                    }
+                } else if (subdlSubtitles.isEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(R.string.no_subdl_found),
+                            color = NetflixLightGray,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                } else {
+                    items(subdlSubtitles) { sub ->
+                        val isIndo = sub.language.equals("ID", ignoreCase = true) || sub.lang.equals("indonesian", ignoreCase = true)
+                        val badgeText = if (isIndo) "ID" else (sub.language ?: "EN")
+                        val authorText = sub.author?.let { "by $it" } ?: ""
+                        val releaseText = sub.releaseName ?: sub.name ?: ""
+
+                        SubtitleOptionCard(
+                            title = releaseText,
+                            subtitle = authorText.ifBlank { null },
+                            badge = badgeText,
+                            isSelected = false,
+                            onClick = { onSelectSubdl(sub) }
                         )
                     }
                 }
