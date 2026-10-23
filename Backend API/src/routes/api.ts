@@ -119,25 +119,6 @@ export const apiRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =>
     }
   });
 
-  // Genres
-  fastify.get('/api/genres', async (req, reply) => {
-    const cacheKey = 'genres:all';
-    const cached = globalCache.get(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
-    try {
-      const data = await engine.getGenres();
-      const wrapped = { data };
-      globalCache.set(cacheKey, wrapped, 2 * 60 * 60 * 1000); // 2 hours
-      return wrapped;
-    } catch (err) {
-      req.log.error(err, 'Failed to fetch genres');
-      return reply.status(502).send({ error: 'Upstream catalog unavailable' });
-    }
-  });
-
   // Search
   fastify.get<{ Querystring: { q?: string } }>('/api/search', async (req, reply) => {
     const query = req.query.q?.trim();

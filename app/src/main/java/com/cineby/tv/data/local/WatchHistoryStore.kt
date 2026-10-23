@@ -130,20 +130,11 @@ class WatchHistoryStore private constructor(context: Context) {
         }
     }
 
-    /**
-     * Legacy backward-compatible signature.
-     */
-    fun savePosition(contentId: String, positionMs: Long, durationMs: Long) {
-        updateProgress(contentId, positionMs, durationMs)
-    }
 
     fun getUnfinishedItems(): List<WatchHistoryItem> {
         return loadHistoryFromPrefs().filter { it.isUnfinished }
     }
 
-    fun getAllHistory(): List<WatchHistoryItem> {
-        return loadHistoryFromPrefs()
-    }
 
     fun removeItem(contentId: String) {
         prefs.edit()
@@ -172,9 +163,6 @@ class WatchHistoryStore private constructor(context: Context) {
         return pos
     }
 
-    fun clearPosition(contentId: String) {
-        removeItem(contentId)
-    }
 
     companion object {
         @Volatile

@@ -1,7 +1,6 @@
 package com.cineby.tv.data.api
 
 import com.cineby.tv.data.model.EpisodeResponse
-import com.cineby.tv.data.model.GenreListResponse
 import com.cineby.tv.data.model.MovieDetail
 import com.cineby.tv.data.model.MovieListResponse
 import com.cineby.tv.data.model.SearchResponse
@@ -46,9 +45,6 @@ interface CinebyApiService {
         @Path("season") season: Int,
         @Path("episode") episode: Int
     ): EpisodeResponse
-
-    @GET("api/genres")
-    suspend fun getGenres(): GenreListResponse
 
     @GET("api/search")
     suspend fun search(

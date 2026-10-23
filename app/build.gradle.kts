@@ -76,8 +76,7 @@ android {
     kotlinOptions {
         jvmTarget = "21"
         freeCompilerArgs = listOf(
-            "-opt-in=androidx.tv.material3.ExperimentalTvMaterial3Api",
-            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
+            "-opt-in=androidx.tv.material3.ExperimentalTvMaterial3Api"
         )
     }
 
@@ -107,9 +106,6 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material.icons)
-    debugImplementation(libs.androidx.compose.ui.tooling)
 
     // Android TV Compose (Netflix-style UI)
     implementation(libs.androidx.tv.foundation)
@@ -122,7 +118,6 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.exoplayer.hls)
     implementation(libs.androidx.media3.ui)
-    implementation(libs.androidx.media3.session)
     implementation(libs.androidx.media3.common)
 
     // Network & Serialization
@@ -136,9 +131,6 @@ dependencies {
     // Coil for TV image loading
     implementation(libs.coil.compose)
 
-    // Local DB
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
 
     testImplementation(libs.junit)
 }

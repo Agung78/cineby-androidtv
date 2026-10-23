@@ -6,19 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class SubdlResponse(
     val status: Boolean = false,
-    val results: List<SubdlItem> = emptyList(),
     val subtitles: List<SubdlSubtitle> = emptyList()
 )
 
-@Serializable
-data class SubdlItem(
-    val sd_id: Long? = null,
-    val type: String? = null,
-    val name: String? = null,
-    val imdb_id: String? = null,
-    val tmdb_id: Long? = null,
-    val year: Int? = null
-)
 
 @Serializable
 data class SubdlSubtitle(

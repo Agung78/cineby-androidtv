@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'crypto';
+import { createDecipheriv, createHash, randomBytes } from 'crypto';
 
 // AES-GCM cipher used by the VidNest embed backend (reversed from its web player).
 // Response shape: { v: 2, n: <nonce>, d: <base64url(iv|ciphertext)> }
@@ -476,12 +476,4 @@ export class CinebyEngine {
     throw new Error(`No streams found (${errors.slice(0, 3).join('; ')})`);
   }
 
-  // Test seam: encrypts payloads exactly the way the upstream server does.
-  public static encryptForTest(nonceStr: string, obj: unknown): { v: number; n: string; d: string } {
-    const key = createHash('sha256').update(`${nonceStr}|${VIDNEST_CIPHER_KEY}`, 'utf8').digest();
-    const iv = randomBytes(12);
-    const cipher = createCipheriv('aes-256-gcm', key, iv);
-    const ct = Buffer.concat([cipher.update(JSON.stringify(obj), 'utf8'), cipher.final()]);
-    return { v: 2, n: nonceStr, d: b64urlEncode(Buffer.concat([iv, ct, cipher.getAuthTag()])) };
-  }
 }

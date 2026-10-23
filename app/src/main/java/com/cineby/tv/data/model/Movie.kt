@@ -96,7 +96,3 @@ data class Pagination(
     val totalPages: Int = 1
 )
 
-@Serializable
-data class GenreListResponse(
-    val data: List<Genre> = emptyList()
-)

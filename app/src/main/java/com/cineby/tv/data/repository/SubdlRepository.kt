@@ -128,22 +128,6 @@ object SubdlRepository {
         }
     }
 
-    suspend fun fetchIndonesianSubtitle(
-        title: String,
-        type: String = "movie",
-        tmdbId: Long? = null,
-        imdbId: String? = null,
-        season: Int? = null,
-        episode: Int? = null,
-        context: Context
-    ): SubtitleTrack? = withContext(Dispatchers.IO) {
-        val allSubs = searchAllSubtitles(title, type, tmdbId, imdbId, season, episode, languages = "ID")
-        val chosen = allSubs.firstOrNull {
-            it.language.equals("ID", ignoreCase = true) || it.lang.equals("indonesian", ignoreCase = true)
-        } ?: allSubs.firstOrNull() ?: return@withContext null
-
-        downloadSubtitle(chosen, context)
-    }
 
     private fun downloadAndExtractSrt(zipUrl: String, context: Context, filePrefix: String): File? {
         return try {

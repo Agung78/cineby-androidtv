@@ -89,11 +89,6 @@ class HomeViewModel(
         _uiState.value = _uiState.value.copy(continueWatching = unfinished)
     }
 
-    fun removeFromHistory(contentId: String) {
-        historyStore.removeItem(contentId)
-        refreshContinueWatching()
-    }
-
     fun setHeroMovie(movie: MovieItem) {
         _uiState.value = _uiState.value.copy(heroMovie = movie)
     }

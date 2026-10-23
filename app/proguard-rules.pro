@@ -12,7 +12,7 @@
 }
 
 # Preserve Data Models for JSON serialization
--keep class com.idlix.tv.data.model.** { *; }
+-keep class com.cineby.tv.data.model.** { *; }
 
 # Debug symbols & stack trace line numbers deobfuscation
 -keepattributes SourceFile,LineNumberTable
@@ -29,5 +29,3 @@
 -keep class androidx.media3.** { *; }
 -dontwarn androidx.media3.**
 
-# Room
--keep class * extends androidx.room.RoomDatabase
