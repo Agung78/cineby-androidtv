@@ -495,9 +495,11 @@ fun PlayerScreen(
                 }
             }
 
+            var isBuffering by remember(exoPlayer) { mutableStateOf(true) }
             DisposableEffect(exoPlayer) {
                 val playerListener = object : Player.Listener {
                     override fun onPlaybackStateChanged(playbackState: Int) {
+                        isBuffering = playbackState == Player.STATE_BUFFERING
                         if (playbackState == Player.STATE_ENDED) {
                             if (uiState.nextEpisode != null && !uiState.isNextEpisodeDismissed) {
                                 viewModel.playNextEpisode()
@@ -536,6 +538,10 @@ fun PlayerScreen(
                 },
                 modifier = Modifier.fillMaxSize()
             )
+
+            if (isBuffering) {
+                Box(modifier = Modifier.align(Alignment.Center)) { TvLoadingSpinner() }
+            }
 
             // D-Pad Player Controls
             TvPlayerControls(

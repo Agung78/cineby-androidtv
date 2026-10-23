@@ -24,6 +24,11 @@ const SERVERS: Array<{ id: string; name: string; movie: string; tv: string; type
   { id: 'sigma', name: 'Sigma', movie: '/hollymoviehd/movie', tv: '/hollymoviehd/tv', type: 'sigma' },
 ];
 
+const ISO3_TO_2: Record<string, string> = {
+  eng: 'en', ind: 'id', spa: 'es', fre: 'fr', fra: 'fr', ger: 'de', deu: 'de', por: 'pt', ita: 'it',
+  jpn: 'ja', kor: 'ko', chi: 'zh', zho: 'zh', ara: 'ar', rus: 'ru', tur: 'tr', tha: 'th', vie: 'vi', hin: 'hi',
+};
+
 export interface CinebySource {
   url: string;
   quality: string;
@@ -415,6 +420,17 @@ export class CinebyEngine {
     return out;
   }
 
+  private parseSubtitles(dec: unknown): Array<{ lang: string; label: string; path: string }> {
+    return arr(rec(dec), 'subtitles').map(rec)
+      .filter((s) => typeof s.url === 'string' && s.url)
+      .slice(0, 40)
+      .map((s) => {
+        const raw = String(str(s, 'lang') ?? str(s, 'label') ?? 'en').toLowerCase();
+        const lang = ISO3_TO_2[raw] ?? raw.slice(0, 8); // app matches 2-letter codes ("en")
+        return { lang, label: String(str(s, 'label') ?? raw), path: String(s.url) };
+      });
+  }
+
   public async resolvePlayback(contentType: string, contentId: string, contentTitle?: string): Promise<ResolvedPlaybackResult> {
     const isTv = contentType === 'tv' || contentType === 'tv_series' || contentType === 'episode';
     let tmdbId = contentId;
@@ -442,14 +458,13 @@ export class CinebyEngine {
         if (!sources.length) { errors.push(`${srv.id}: empty`); continue; }
         const hls = sources.find((s) => s.type === 'hls');
         const mp4 = sources.find((s) => s.type === 'mp4');
-        const subs = arr(rec(dec), 'subtitles').map(rec)
-          .filter((s) => typeof s.url === 'string' && s.url)
-          .slice(0, 10)
-          .map((s) => ({
-            lang: String(str(s, 'lang') ?? str(s, 'label') ?? 'en').slice(0, 8),
-            label: String(str(s, 'label') ?? str(s, 'lang') ?? 'Subtitle'),
-            path: String(s.url),
-          }));
+        let subs = this.parseSubtitles(dec);
+        // Most servers (e.g. lamda) ship no subtitles; borrow them from flixhq, which does.
+        if (!subs.length && srv.id !== 'beta') {
+          try {
+            subs = this.parseSubtitles(await this.vidnestGet(isTv ? '/flixhq/tv' : '/flixhq/movie', tmdbId, season, episode));
+          } catch { /* playback still works without subtitles */ }
+        }
         return {
           title, hlsMasterUrl: (hls ?? sources[0]).url, mp4Url: mp4?.url,
           subtitles: subs, durationSec: 0, videoId: tmdbId, server: srv.id, sources,
