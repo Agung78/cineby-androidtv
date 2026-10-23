@@ -1,0 +1,22 @@
+{
+  "name": "cineby-backend-api",
+  "version": "1.0.0",
+  "description": "TMDB catalog proxy and VidNest playback resolver API for Cineby for TV (no browser needed)",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.0",
+    "lru-cache": "^11.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.7.2"
+  }
+}

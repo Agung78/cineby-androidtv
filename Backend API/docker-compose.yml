@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  cineby-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cineby-backend-api
+    restart: unless-stopped
+    ports:
+      - "5376:5376"
+    environment:
+      - PORT=5376
+      - HOST=0.0.0.0
+      - LOG_LEVEL=info
+    # Cap memory usage so it never hogs the VPS
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
