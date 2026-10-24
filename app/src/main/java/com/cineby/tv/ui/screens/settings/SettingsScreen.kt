@@ -53,6 +53,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.cineby.tv.BuildConfig
+import com.cineby.tv.R
 import com.cineby.tv.data.api.ApiClient
 import com.cineby.tv.data.api.ServerDiscovery
 import com.cineby.tv.data.model.SubdlResponse
