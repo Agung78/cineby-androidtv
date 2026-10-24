@@ -1,0 +1,9 @@
+name = "cineby-backend-api"
+account_id = "980aec9a25738a50946cc0468d741dea"
+main = "src/worker.ts"
+compatibility_date = "2025-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# VIDNEST_BASE_URL = "https://new.vidnest.fun"
+# Secrets (set via `wrangler secret put`): TMDB_API_KEY, VIDNEST_CIPHER_KEY

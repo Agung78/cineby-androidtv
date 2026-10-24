@@ -57,6 +57,8 @@
     <string name="active_backend_url">URL Aktif: %s</string>
     <string name="test_backend_connection">Uji Koneksi Backend</string>
     <string name="testing">Menguji...</string>
+    <string name="use_cloud_url">Pakai Cloud</string>
+    <string name="use_local_url">Pakai Lokal</string>
     <string name="reset_default_url">Reset Default URL</string>
     <string name="reset_default_key">Reset Default Key</string>
     <string name="save_all_settings">Simpan Semua Pengaturan</string>

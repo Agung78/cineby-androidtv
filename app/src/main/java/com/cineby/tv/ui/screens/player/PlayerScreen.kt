@@ -459,7 +459,7 @@ fun PlayerScreen(
             fun applySubtitleTrack(track: com.cineby.tv.data.model.SubtitleTrack?) {
                 val currentPos = exoPlayer.currentPosition
                 val wasPlaying = exoPlayer.isPlaying
-                val newSource = buildMediaSource(resolved.hlsMasterUrl, track)
+                val newSource = buildMediaSource(playUrl, track)
                 exoPlayer.setMediaSource(newSource, currentPos)
                 val selector = exoPlayer.trackSelectionParameters.buildUpon()
                 if (track != null) {

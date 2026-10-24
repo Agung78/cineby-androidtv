@@ -28,6 +28,8 @@ android {
 
         val backendUrl = localProperties.getProperty("backendApiUrl") ?: "https://streamapi.abdiworks.my.id/"
         buildConfigField("String", "BACKEND_API_URL", "\"$backendUrl\"")
+        val cloudUrl = localProperties.getProperty("backendCloudUrl") ?: "https://cineby-backend-api.agungmethodist78.workers.dev/"
+        buildConfigField("String", "BACKEND_CLOUD_URL", "\"$cloudUrl\"")
 
         vectorDrawables {
             useSupportLibrary = true

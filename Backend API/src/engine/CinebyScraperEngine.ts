@@ -1,13 +1,30 @@
-import { createDecipheriv, createHash, randomBytes } from 'crypto';
+import { createDecipheriv, createHash, randomBytes } from 'node:crypto';
 
 // AES-GCM cipher used by the VidNest embed backend (reversed from its web player).
 // Response shape: { v: 2, n: <nonce>, d: <base64url(iv|ciphertext)> }
 // Key material: SHA-256(`${nonce}|${MASTER_KEY}`), 12-byte IV prefix.
-const VIDNEST_CIPHER_KEY = process.env.VIDNEST_CIPHER_KEY || 'K3p8vQ2mX9rL5wZ0fN7bG1sH4tJ6dC9_y8S3wM1nQ5pL2';
-const VIDNEST_BASE = (process.env.VIDNEST_BASE_URL || 'https://new.vidnest.fun').replace(/\/+$/, '');
+export interface EngineEnv {
+  tmdbApiKey?: string;
+  vidnestBaseUrl?: string;
+  vidnestCipherKey?: string;
+}
+
+// ponytail: module-level mutable config, set once per process/worker isolate.
+// Upgrade path: pass env through constructor if second consumer needs isolation.
+const procEnv: Record<string, string | undefined> =
+  typeof process !== 'undefined' && process.env ? process.env : {};
+let TMDB_KEY = procEnv.TMDB_API_KEY || '8871b4dba1715cd776c063a458ae8795';
+let VIDNEST_BASE = (procEnv.VIDNEST_BASE_URL || 'https://new.vidnest.fun').replace(/\/+$/, '');
+let VIDNEST_CIPHER_KEY = procEnv.VIDNEST_CIPHER_KEY || 'K3p8vQ2mX9rL5wZ0fN7bG1sH4tJ6dC9_y8S3wM1nQ5pL2';
+
+export function configureEngine(env: EngineEnv): void {
+  if (env.tmdbApiKey) TMDB_KEY = env.tmdbApiKey;
+  if (env.vidnestBaseUrl) VIDNEST_BASE = env.vidnestBaseUrl.replace(/\/+$/, '');
+  if (env.vidnestCipherKey) VIDNEST_CIPHER_KEY = env.vidnestCipherKey;
+}
+
 const TMDB_API = 'https://api.themoviedb.org/3';
 const TMDB_IMG = 'https://image.tmdb.org/t/p';
-const TMDB_KEY = process.env.TMDB_API_KEY || '8871b4dba1715cd776c063a458ae8795';
 
 // VidNest server map (reversed from vidnest.fun web player).
 // Each entry: path prefix + type determines the payload shape of the decrypted response.
@@ -78,14 +95,19 @@ function strMap(v: unknown): Record<string, string> | undefined {
   return out;
 }
 
-function b64urlEncode(buf: Buffer): string {
-  return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+function b64urlEncode(bytes: Uint8Array): string {
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-function b64urlDecode(s: string): Buffer {
+function b64urlDecode(s: string): Uint8Array {
   let t = s.replace(/-/g, '+').replace(/_/g, '/');
   while (t.length % 4 !== 0) t += '=';
-  return Buffer.from(t, 'base64');
+  const bin = atob(t);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
 }
 
 async function decryptCipherResponse(payload: unknown): Promise<unknown> {
@@ -96,8 +118,12 @@ async function decryptCipherResponse(payload: unknown): Promise<unknown> {
     const decipher = createDecipheriv('aes-256-gcm', key, raw.subarray(0, 12));
     const ct = raw.subarray(12);
     decipher.setAuthTag(ct.subarray(ct.length - 16));
-    const pt = Buffer.concat([decipher.update(ct.subarray(0, ct.length - 16)), decipher.final()]);
-    const text = pt.toString('utf8');
+    const a = new Uint8Array(decipher.update(ct.subarray(0, ct.length - 16)));
+    const b = new Uint8Array(decipher.final());
+    const pt = new Uint8Array(a.length + b.length);
+    pt.set(a, 0);
+    pt.set(b, a.length);
+    const text = new TextDecoder().decode(pt);
     try { return JSON.parse(text) as unknown; } catch { return text; }
   }
   return payload;
@@ -362,12 +388,17 @@ export class CinebyEngine {
 
   // ---- VidNest playback resolver ----
 
-  private async vidnestGet(path: string, tmdbId: string, season?: number, episode?: number): Promise<unknown> {
+  private async vidnestGet(path: string, tmdbId: string, season?: number, episode?: number, timeoutMs = 20000, signal?: AbortSignal): Promise<unknown> {
     const n = b64urlEncode(randomBytes(16));
     const suffix = season != null && episode != null ? `/${tmdbId}/${season}/${episode}` : `/${tmdbId}`;
     const url = `${VIDNEST_BASE}${path}${suffix}?_n=${encodeURIComponent(n)}`;
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 20000);
+    const onAbort = (): void => ctrl.abort();
+    if (signal) {
+      if (signal.aborted) ctrl.abort();
+      else signal.addEventListener('abort', onAbort, { once: true });
+    }
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
       const res = await fetch(url, {
         headers: { Accept: 'application/json', 'User-Agent': 'CinebyTV/1.0 (Android TV)', Referer: 'https://vidnest.fun/' },
@@ -377,7 +408,36 @@ export class CinebyEngine {
       return decryptCipherResponse(await res.json());
     } finally {
       clearTimeout(t);
+      if (signal) signal.removeEventListener('abort', onAbort);
     }
+  }
+
+  // ponytail: 4-wide pool; losers abort on first hit. Sequential 10x20s was the tail risk.
+  private async raceServers(
+    isTv: boolean, tmdbId: string, season?: number, episode?: number,
+  ): Promise<{ dec: unknown; srv: (typeof SERVERS)[number] }> {
+    const errors: string[] = [];
+    const queue = [...SERVERS];
+    const shared = new AbortController();
+    const workers = Array.from({ length: Math.min(4, queue.length) }, async () => {
+      while (queue.length > 0 && !shared.signal.aborted) {
+        const srv = queue.shift();
+        if (!srv) return null;
+        try {
+          const dec = await this.vidnestGet(isTv ? srv.tv : srv.movie, tmdbId, season, episode, 7000, shared.signal);
+          if (!this.pickSources(dec, srv.type, srv.id).length) { errors.push(`${srv.id}: empty`); continue; }
+          shared.abort();
+          return { dec, srv };
+        } catch (e) {
+          if (!shared.signal.aborted) errors.push(`${srv.id}: ${e instanceof Error ? e.message : String(e)}`);
+        }
+      }
+      return null;
+    });
+    const results = await Promise.all(workers);
+    const hit = results.find((r): r is NonNullable<typeof r> => r !== null);
+    if (hit) return hit;
+    throw new Error(`No streams found (${errors.slice(0, 3).join('; ')})`);
   }
 
   private pickSources(dec: unknown, type: string, server: string): CinebySource[] {
@@ -445,35 +505,26 @@ export class CinebyEngine {
     }
 
     let title = contentTitle || (isTv && season != null ? `TMDB ${tmdbId} S${season}E${episode}` : `TMDB ${tmdbId}`);
-    try {
-      const meta = isTv ? await this.seriesDetail(tmdbId) : await this.movieDetail(tmdbId);
-      title = meta.title || title;
-    } catch { /* keep fallback title */ }
+    // Meta + race start together; title resolves in background, never blocks HLS.
+    const metaP = (isTv ? this.seriesDetail(tmdbId) : this.movieDetail(tmdbId)).catch(() => null);
+    const raceP = this.raceServers(isTv, tmdbId, season, episode);
+    const [{ dec, srv }, meta] = await Promise.all([raceP, metaP]);
+    if (meta?.title) title = meta.title;
 
-    const errors: string[] = [];
-    for (const srv of SERVERS) {
+    const sources = this.pickSources(dec, srv.type, srv.id);
+    const hls = sources.find((s) => s.type === 'hls');
+    const mp4 = sources.find((s) => s.type === 'mp4');
+    let subs = this.parseSubtitles(dec);
+    // Most servers (e.g. lamda) ship no subtitles; borrow them from flixhq, which does.
+    if (!subs.length && srv.id !== 'beta') {
       try {
-        const dec = await this.vidnestGet(isTv ? srv.tv : srv.movie, tmdbId, season, episode);
-        const sources = this.pickSources(dec, srv.type, srv.id);
-        if (!sources.length) { errors.push(`${srv.id}: empty`); continue; }
-        const hls = sources.find((s) => s.type === 'hls');
-        const mp4 = sources.find((s) => s.type === 'mp4');
-        let subs = this.parseSubtitles(dec);
-        // Most servers (e.g. lamda) ship no subtitles; borrow them from flixhq, which does.
-        if (!subs.length && srv.id !== 'beta') {
-          try {
-            subs = this.parseSubtitles(await this.vidnestGet(isTv ? '/flixhq/tv' : '/flixhq/movie', tmdbId, season, episode));
-          } catch { /* playback still works without subtitles */ }
-        }
-        return {
-          title, hlsMasterUrl: (hls ?? sources[0]).url, mp4Url: mp4?.url,
-          subtitles: subs, durationSec: 0, videoId: tmdbId, server: srv.id, sources,
-        };
-      } catch (e) {
-        errors.push(`${srv.id}: ${e instanceof Error ? e.message : String(e)}`);
-      }
+        subs = this.parseSubtitles(await this.vidnestGet(isTv ? '/flixhq/tv' : '/flixhq/movie', tmdbId, season, episode, 5000));
+      } catch { /* playback still works without subtitles */ }
     }
-    throw new Error(`No streams found (${errors.slice(0, 3).join('; ')})`);
+    return {
+      title, hlsMasterUrl: (hls ?? sources[0]).url, mp4Url: mp4?.url,
+      subtitles: subs, durationSec: 0, videoId: tmdbId, server: srv.id, sources,
+    };
   }
 
 }

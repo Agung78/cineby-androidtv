@@ -1,13 +1,12 @@
-# Idlix TV - Backend API Scraper & Proxy Service
+# Cineby TV - Backend API (TMDB catalog + VidNest playback)
 
-High-performance scraper, cache, and Cloudflare bypass API for **Idlix for TV**.
-By running this backend service, the Android TV app does not need any Android `WebView` or Chromium processes, running 100% native Kotlin with minimal memory footprint.
+Pure HTTP proxy, no browser. Android TV (ExoPlayer) streams video direct from upstream CDNs.
 
 ## Fitur Utama
-1. **Cloudflare Evasion Server-Side**: Menggunakan stealth browser session untuk melewati Cloudflare Managed / Turnstile Challenge secara otomatis.
-2. **In-Memory Caching (LRU)**: Menyimpan cache film, serial, dan kategori di RAM (15-30 menit) sehingga respons ke Android TV instan (<15ms) dan menghemat bandwidth.
-3. **All-in-One Playback Resolver**: Menyediakan endpoint `/api/playback/resolve` yang menyelesaikan `gateToken`, countdown, claim session, dan redeem HLS playlist langsung ke master URL siap putar.
-4. **Ringan & Hemat RAM**: Image Docker dirancang khusus dengan pembatasan memori (<1GB) dan pemblokiran resource visual (gambar/media/iklan) agar sangat hemat di VPS 1-2GB RAM.
+1. **TMDB Catalog**: movie/series list, detail, search via TMDB REST API.
+2. **In-Memory Caching (LRU)**: 10-30 min per endpoint, <15ms on hit.
+3. **All-in-One Playback Resolver**: `GET /api/playback/resolve` tries 10 VidNest servers serially, decrypts AES-GCM, returns HLS master URL + subs.
+4. **Ringan**: ~60 MB RAM, single Node process or Cloudflare Worker.
 
 ---
 
@@ -59,15 +58,29 @@ By running this backend service, the Android TV app does not need any Android `W
 ---
 
 ## REST Endpoints Tersedia
-- `GET /health` : Status server dan sesi browser
+- `GET /health` : Status server
 - `GET /api/movies?page=1&limit=20&sort=popularity&genre=slug` : Daftar film
 - `GET /api/series?page=1&limit=20&sort=popularity&genre=slug` : Daftar serial TV
 - `GET /api/movies/:slug` : Detail film
 - `GET /api/series/:slug` : Detail serial beserta episode
 - `GET /api/series/:slug/season/:season/episode/:episode` : Detail episode
-- `GET /api/genres` : Daftar genre
 - `GET /api/search?q=:query` : Pencarian film/serial
-- `GET /api/watch/play-info/:contentType/:id` : Gate token provider
-- `POST /api/watch/session/claim` : Klaim sesi pemutaran
-- `POST /api/watch/redeem` : Redeem master playlist HLS
 - `GET /api/playback/resolve?contentType=:type&contentId=:id&contentTitle=:title` : Resolusi tuntas playlist video HLS & subtitle
+
+---
+
+## Deploy: Cloudflare Workers (free, no CC) vs Lokal Mac
+
+Same engine, two entries. `src/server.ts` (Fastify, local) untouched; `src/worker.ts` (Hono, edge) shares `CinebyScraperEngine`.
+
+```bash
+cd "Backend API"
+npx wrangler login
+# optional overrides, else baked-in defaults are used:
+npx wrangler secret put TMDB_API_KEY
+npx wrangler secret put VIDNEST_CIPHER_KEY
+npx wrangler deploy
+```
+
+TV app: Settings -> enter `https://<worker>.workers.dev/` -> Test Connection -> Save & Apply.
+Fallback: if the worker dies, follow `../RUN_BACKEND.md` (Mac LAN `http://<LAN_IP>:5376/`), flip the TV URL back. No rebuild.

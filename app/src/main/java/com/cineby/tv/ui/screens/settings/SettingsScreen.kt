@@ -53,8 +53,8 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.cineby.tv.BuildConfig
-import com.cineby.tv.R
 import com.cineby.tv.data.api.ApiClient
+import com.cineby.tv.data.api.ServerDiscovery
 import com.cineby.tv.data.model.SubdlResponse
 import com.cineby.tv.data.repository.SubdlRepository
 import com.cineby.tv.ui.theme.TvBackground
@@ -314,6 +314,61 @@ fun SettingsScreen(
                             fontSize = 12.sp
                         )
                     }
+                }
+
+                Button(
+                    onClick = {
+                        scope.launch {
+                            val active = ApiClient.getBaseUrl()
+                            val isOnCloud = active.trimEnd('/') == ApiClient.CLOUD_URL.trimEnd('/')
+                            if (isOnCloud) {
+                                // Switch to Local: remembered LAN first, else one live scan.
+                                val remembered = ApiClient.getLocalUrl()
+                                val local = if (remembered != null) {
+                                    remembered
+                                } else {
+                                    withContext(Dispatchers.IO) {
+                                        ServerDiscovery.scanLan(context)
+                                    }
+                                }
+                                if (local != null) {
+                                    ApiClient.rememberLocalUrl(local)
+                                    ApiClient.setBaseUrl(local)
+                                    currentActiveUrl = ApiClient.getBaseUrl()
+                                    inputUrl = currentActiveUrl
+                                    runTestBackend(currentActiveUrl)
+                                } else {
+                                    backendTestStatus = "No local backend found on LAN"
+                                    isBackendTestSuccess = false
+                                }
+                            } else {
+                                // Remember current LAN before leaving, then switch to Cloud.
+                                if (active.startsWith("http://192.168.") || active.startsWith("http://10.") || active.startsWith("http://172.")) {
+                                    ApiClient.rememberLocalUrl(active)
+                                }
+                                ApiClient.setBaseUrl(ApiClient.CLOUD_URL)
+                                currentActiveUrl = ApiClient.getBaseUrl()
+                                inputUrl = currentActiveUrl
+                                runTestBackend(currentActiveUrl)
+                            }
+                            saveMessage = null
+                        }
+                    },
+                    colors = ButtonDefaults.colors(
+                        containerColor = TvBrand.copy(alpha = 0.35f),
+                        focusedContainerColor = TvBrand,
+                        contentColor = TvOnSurface,
+                        focusedContentColor = TvOnSurface
+                    ),
+                    shape = ButtonDefaults.shape(RoundedCornerShape(6.dp)),
+                    modifier = Modifier.height(38.dp)
+                ) {
+                    val isOnCloud = currentActiveUrl.trimEnd('/') == ApiClient.CLOUD_URL.trimEnd('/')
+                    Text(
+                        text = if (isOnCloud) stringResource(R.string.use_local_url) else stringResource(R.string.use_cloud_url),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
                 Button(

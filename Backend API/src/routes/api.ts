@@ -153,8 +153,14 @@ export const apiRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =>
       return reply.status(400).send({ error: 'contentType and contentId are required' });
     }
 
+    // ponytail: 5-min cache, streams rotate slowly. Repeat clicks = zero upstream.
+    const cacheKey = `pb:${contentType}:${contentId}`;
+    const hit = globalCache.get(cacheKey);
+    if (hit) return hit;
+
     try {
       const playback = await engine.resolvePlayback(contentType, contentId, contentTitle);
+      globalCache.set(cacheKey, playback, 5 * 60 * 1000);
       return playback;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to resolve stream playback';

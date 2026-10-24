@@ -20,7 +20,9 @@ import java.util.concurrent.TimeUnit
 object ApiClient {
 
     private const val PREF_KEY_SERVER_URL = "custom_backend_url"
+    private const val PREF_KEY_LOCAL_URL = "local_backend_url"
     private const val DEFAULT_URL = BuildConfig.BACKEND_API_URL
+    const val CLOUD_URL = BuildConfig.BACKEND_CLOUD_URL
 
     val json = Json {
         ignoreUnknownKeys = true
@@ -59,6 +61,23 @@ object ApiClient {
 
         synchronized(this) {
             _cinebyApi = null
+        }
+    }
+
+    /** Last LAN URL that answered /health; used as the Local preset for the Cloud/Local toggle. */
+    fun rememberLocalUrl(url: String) {
+        try {
+            val prefs = CinebyTvApp.appContext.getSharedPreferences("cineby_config", Context.MODE_PRIVATE)
+            prefs.edit().putString(PREF_KEY_LOCAL_URL, url).apply()
+        } catch (_: Exception) {}
+    }
+
+    fun getLocalUrl(): String? {
+        return try {
+            val prefs = CinebyTvApp.appContext.getSharedPreferences("cineby_config", Context.MODE_PRIVATE)
+            prefs.getString(PREF_KEY_LOCAL_URL, null)
+        } catch (_: Exception) {
+            null
         }
     }
 

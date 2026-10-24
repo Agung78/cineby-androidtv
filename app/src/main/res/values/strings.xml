@@ -57,6 +57,8 @@
     <string name="active_backend_url">Active URL: %s</string>
     <string name="test_backend_connection">Test Backend Connection</string>
     <string name="testing">Testing...</string>
+    <string name="use_cloud_url">Use Cloud</string>
+    <string name="use_local_url">Use Local</string>
     <string name="reset_default_url">Reset Default URL</string>
     <string name="reset_default_key">Reset Default Key</string>
     <string name="save_all_settings">Save All Settings</string>
