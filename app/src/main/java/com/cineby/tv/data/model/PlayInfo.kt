@@ -28,6 +28,7 @@ data class ResolvedPlayback(
     val hlsMasterUrl: String = "",
     val mp4Url: String? = null,
     val subtitles: List<SubtitleTrack> = emptyList(),
+    val audioLanguage: String? = null,
     val durationSec: Long = 0L,
     val videoId: String = "",
     val server: String = "",

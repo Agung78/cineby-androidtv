@@ -58,6 +58,12 @@ class PlayerViewModel(
     private var currentSlug: String? = null
     private var currentSeasonNumber: Int? = null
     private var currentEpisodeNumber: Int? = null
+    private var currentAudioLanguage: String? = null
+    private var subtitleApplier: ((SubtitleTrack) -> Unit)? = null
+
+    fun bindSubtitleApplier(applier: (SubtitleTrack) -> Unit) {
+        subtitleApplier = applier
+    }
 
     fun loadStream(
         contentType: String,
@@ -123,7 +129,12 @@ class PlayerViewModel(
             )
 
             result.onSuccess { resolved ->
-                val defaultSub = resolved.subtitles.firstOrNull { it.lang == "en" }
+                val audioLang = resolved.audioLanguage
+                currentAudioLanguage = audioLang
+                val defaultSub = resolved.subtitles.firstOrNull {
+                    audioLang != null && it.lang.equals(audioLang, ignoreCase = true)
+                }
+                    ?: resolved.subtitles.firstOrNull { it.lang.equals("en", ignoreCase = true) }
                     ?: resolved.subtitles.firstOrNull()
 
                 _uiState.value = _uiState.value.copy(
@@ -296,6 +307,16 @@ class PlayerViewModel(
                 isSearchingSubdl = false,
                 subdlSubtitles = results
             )
+            // Auto-select the subtitle matching the video's audio language so the user
+            // does not have to pick one-by-one; falls back to the first result.
+            val audioLang = currentAudioLanguage
+            val autoSub = results.firstOrNull { sub ->
+                audioLang != null && (sub.language?.equals(audioLang, ignoreCase = true) == true
+                    || sub.lang?.equals(audioLang, ignoreCase = true) == true)
+            } ?: results.firstOrNull()
+            autoSub?.let { selectSubdlSubtitle(it) { track ->
+                subtitleApplier?.invoke(track)
+            } }
         }
     }
 

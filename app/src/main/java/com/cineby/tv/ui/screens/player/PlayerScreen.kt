@@ -475,6 +475,11 @@ fun PlayerScreen(
                     exoPlayer.play()
                 }
             }
+            LaunchedEffect(exoPlayer) {
+                viewModel.bindSubtitleApplier { track ->
+                    applySubtitleTrack(track)
+                }
+            }
 
             LaunchedEffect(exoPlayer) {
                 activePlayer = exoPlayer

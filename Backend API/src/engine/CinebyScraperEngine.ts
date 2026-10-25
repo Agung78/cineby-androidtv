@@ -55,6 +55,7 @@ export interface CinebySource {
 }
 
 export interface ResolvedPlaybackResult {
+  audioLanguage: string | null;
   title: string;
   hlsMasterUrl: string;
   mp4Url?: string;
@@ -306,6 +307,7 @@ export class CinebyEngine {
       country: countries[0] ?? null,
       genres: arr(m, 'genres').map(rec).map((g) => ({ id: String(num(g, 'id') ?? ''), name: str(g, 'name') ?? '', slug: String(num(g, 'id') ?? '') })),
       cast: this.creditsCast(m),
+      originalLanguage: str(m, 'original_language'),
       trailerUrl: this.trailer(m),
     };
   }
@@ -335,6 +337,7 @@ export class CinebyEngine {
       viewCount: Math.round((num(s, 'popularity') ?? 0) * 100),
       country: countries[0] ?? null,
       status: str(s, 'status'),
+      originalLanguage: str(s, 'original_language'),
       genres: arr(s, 'genres').map(rec).map((g) => ({ id: String(num(g, 'id') ?? ''), name: str(g, 'name') ?? '', slug: String(num(g, 'id') ?? '') })),
       seasons,
       cast: this.creditsCast(s),
@@ -522,6 +525,7 @@ export class CinebyEngine {
       } catch { /* playback still works without subtitles */ }
     }
     return {
+      audioLanguage: meta?.originalLanguage ?? null,
       title, hlsMasterUrl: (hls ?? sources[0]).url, mp4Url: mp4?.url,
       subtitles: subs, durationSec: 0, videoId: tmdbId, server: srv.id, sources,
     };
